@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>NOIP2022 T1 种花 题解</title>
+    <url>/2022/12/10/NOIP2022%20T1%20%E7%A7%8D%E8%8A%B1%20%E9%A2%98%E8%A7%A3/</url>
+    <content><![CDATA[<h1 id="题面解释">题面解释</h1>
+<p>给定<span class="math inline">\(n\times
+m\)</span>大小的花园，有一些不能种花的土坑，现给定所有格的状态,求在花园里种出＂C＂形和＂F＂形的方案数。
+＂C＂形： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">**</span><br><span class="line">*</span><br><span class="line">**</span><br><span class="line">//至少宽两格高三格</span><br></pre></td></tr></table></figure> ＂F＂形： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">**</span><br><span class="line">*</span><br><span class="line">**</span><br><span class="line">*</span><br><span class="line">//至少宽两格高四格</span><br></pre></td></tr></table></figure> <span id="more"></span></p>
+<h1 id="解法">解法</h1>
+<p>要保证不重不漏，我们枚举每个点为左上角，让该点所在行为＂C＂形上方的横，它的长度有若干种情况，对于<span
+class="math inline">\((i,j)\)</span>这个点，我们设<span
+class="math inline">\(rt_{i,j}\)</span>，表示<span
+class="math inline">\((i,j)\)</span>这个点到其右方最近土坑的距离，则该行的方案数为<span
+class="math inline">\(rt_{i,j}-1\)</span>。递推式：</p>
+<p>若<span class="math inline">\((i,j)\)</span>为土坑，<span
+class="math inline">\(rt_{i,j}=0\)</span>；</p>
+<p>若<span class="math inline">\((i,j)\)</span>可种花，<span
+class="math inline">\(rt_{i,j}=rt_{i,j+1}+1\)</span>。</p>
+<p>接着我们考虑＂C＂形下面一行，方案数为<span
+class="math inline">\(rt_{k,j}-1\)</span>，枚举从<span
+class="math inline">\(i+2\)</span>行开始每一行，累加方案数，与第<span
+class="math inline">\(i\)</span>行方案数相乘得答案，设<span
+class="math inline">\(ansc\)</span>：</p>
+<p><span class="math display">\[ansc_{i,j}=(rt_{i,j}-1)\times
+\sum^{n}_{k=i+2}(rt_{k,j}-1)\]</span></p>
+<p>无法向下延伸时break;</p>
+<p><del>匚，受物之器。</del> <a
+href="https://www.luogu.com.cn/user/559503">同队大佬亅匚丫</a></p>
+<p>观察到“F”形一竖长度也有若干种情况，考虑“C”形左上角，只需乘以“C”形下方横行方案数按照求<span
+class="math inline">\(ansc\)</span>的方法累加相乘即可。</p>
+<p>设<span class="math inline">\(dw_{i,j}\)</span>表示<span
+class="math inline">\((i,j)\)</span>这个点到其下方最近土坑的距离，则以<span
+class="math inline">\((i,j)\)</span>作为“C”形左上角向下延伸为“F”形的方案数为<span
+class="math inline">\(dw_{i,j}-1\)</span>。递推式：</p>
+<p>若<span class="math inline">\((i,j)\)</span>为土坑，<span
+class="math inline">\(dw_{i,j}=0\)</span>；</p>
+<p>若<span class="math inline">\((i,j)\)</span>可种花，<span
+class="math inline">\(dw_{i,j}=dw_{i+1,j}+1\)</span>。</p>
+<p>设<span class="math inline">\(ansf\)</span>：</p>
+<p><span class="math display">\[ansf_{i,j}=(rt_{i,j}-1)\times
+\sum^{i+dw_{i,j}-1}_{k=i+2}(rt_{k,j}-1)\times (dw_{k,j}-1)\]</span></p>
+<p>所有点的方案数相加即答案。复杂度<span
+class="math inline">\(O(n^3)\)</span>，考场上能过！</p>
+<p>显然的优化：求答案时加的一维枚举可以省去。</p>
+<p>观察求<span class="math inline">\(ansc\)</span>和<span
+class="math inline">\(ansf\)</span>的式子，它们都包含了从当前行的下方第二行到末尾行的方案数。考虑从下方行的答案递推上方行的答案。注意当前行的状态并不一定来自其下方第一行：可能有土坑，也可能它右边第一格为土坑导致无法延伸，该点答案为<span
+class="math inline">\(0\)</span>。</p>
+<p>因此维护一个<span
+class="math inline">\(nxt_{i,j}\)</span>表示能转移到<span
+class="math inline">\((i,j)\)</span>的行数，<span
+class="math inline">\(nxt_{i,j}\)</span>为<span
+class="math inline">\(0\)</span>表示无法转移，此时用上述方法暴力求算。</p>
+<p>从<span class="math inline">\((n-2)\)</span>行到<span
+class="math inline">\(1\)</span>行枚举行数：初始<span
+class="math inline">\(nxt_{i,j}=0\)</span>，成功转移后<span
+class="math inline">\(nxt_{i,j}=i\)</span>表示它可用于转移上方状态。上方行被枚举到时如果为土坑将<span
+class="math inline">\(nxt_{i,j}\)</span>重置为0，否则<span
+class="math inline">\(nxt_{i,j}=nxt_{i+1,j}\)</span>。</p>
+<p>改写一下前面的递推式：</p>
+<p><span class="math display">\[ansc_{i,j}=(rt_{i,j}-1)\times  \frac
+{ansc_{nxt_{i,j},j}}{rt_{nxt_{i,j},j}-1}\]</span></p>
+<p><span class="math display">\[ansf_{i,j}=(rt_{i,j}-1)\times  \frac
+{ansf_{nxt_{i,j},j}}{rt_{nxt_{i,j},j}-1}\]</span></p>
+<p>注意除改为乘逆元（<del>打表打个10KB</del>）</p>
+<p>但这个转移式是错误的。当从<span
+class="math inline">\((i,j)\)</span>下方第二行及更远的地方转移时，<span
+class="math inline">\((nxt_{i,j},j)\)</span>这行的方案数对于第<span
+class="math inline">\(i\)</span>行是合法的，因此应加入。</p>
+<p>在求<span class="math inline">\((nxt_{i,j},j)\)</span>时我们忽略<span
+class="math inline">\(nxt_{i,j}+1\)</span>这一行，但这一行对于上面所有行都是合法的。在<span
+class="math inline">\((nxt_{i,j},j)\)</span>累加进答案后，我们将这一行加进来才可以正确转移。</p>
+<p>正确的递推式：</p>
+<p><span class="math display">\[ansc_{i,j}=(rt_{i,j}-1)\times  (\frac
+{ansc_{nxt_{i,j},j}}{rt_{nxt_{i,j},j}-1}+[nxt_{i,j}\ne i+1]\times
+(rt_{nxt_{i,j}-1}))\]</span></p>
+<p><span class="math display">\[ansf_{i,j}=(rt_{i,j}-1)\times  (\frac
+{ansf_{nxt_{i,j},j}}{rt_{nxt_{i,j},j}-1}+[nxt_{i,j}\ne i+1]\times
+(rt_{nxt_{i,j}-1})\times (dw_{nxt_{i,j}-1}))\]</span></p>
+<p>最后，</p>
+<p><span class="math display">\[ansc_{i,j}=(rt_{i,j}-1)\times
+(rt_{i+1,j}-1)\]</span></p>
+<p><span class="math display">\[ansf_{i,j}=(rt_{i,j}-1)\times
+(rt_{i+1,j}-1)\times (dw_{i+1,j}-1)\]</span></p>
+<p>复杂度<span class="math inline">\(O(n^2)\)</span>。贴上优雅的代码：
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">namespace</span> Kochi</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Kopi&gt;</span></span><br><span class="line"><span class="function">    <span class="keyword">inline</span> <span class="type">void</span> <span class="title">read</span><span class="params">(Kopi&amp; ret)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        ret=<span class="number">0</span>;</span><br><span class="line">        <span class="type">bool</span> f=<span class="number">0</span>;</span><br><span class="line">        <span class="type">char</span> ch=<span class="built_in">getchar</span>();</span><br><span class="line">        <span class="keyword">while</span>(ch&lt;<span class="string">&#x27;0&#x27;</span>||ch&gt;<span class="string">&#x27;9&#x27;</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(ch==<span class="string">&#x27;-&#x27;</span>) f=<span class="number">1</span>;</span><br><span class="line">            ch=<span class="built_in">getchar</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">while</span>(ch&gt;=<span class="string">&#x27;0&#x27;</span>&amp;&amp;ch&lt;=<span class="string">&#x27;9&#x27;</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            ret=(ret&lt;&lt;<span class="number">3</span>)+(ret&lt;&lt;<span class="number">1</span>)+(ch^<span class="number">48</span>);</span><br><span class="line">            ch=<span class="built_in">getchar</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(f) ret=-ret;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">const</span> <span class="type">int</span> maxn=<span class="number">1003</span>,mod=<span class="number">998244353</span>;</span><br><span class="line">    <span class="type">int</span> rt[maxn][maxn];</span><br><span class="line">    <span class="type">int</span> dw[maxn][maxn];</span><br><span class="line">    <span class="type">int</span> nxt[maxn][maxn];</span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> inv[maxn];</span><br><span class="line">    <span class="type">char</span> gd[maxn][maxn];</span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> ansc[maxn][maxn];</span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> ansf[maxn][maxn];</span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> ascc,asff;</span><br><span class="line">    <span class="type">int</span> T,id;</span><br><span class="line">    <span class="type">int</span> n,m,c,f;</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">Ayatsuki</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">read</span>(T),<span class="built_in">read</span>(id);</span><br><span class="line">        inv[<span class="number">1</span>]=<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">2</span>;i&lt;=<span class="number">1000</span>;i++)</span><br><span class="line">            inv[i]=(mod-inv[mod%i]*(mod/i)%mod);</span><br><span class="line">        <span class="keyword">while</span>(T--)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">read</span>(n),<span class="built_in">read</span>(m),<span class="built_in">read</span>(c),<span class="built_in">read</span>(f);</span><br><span class="line">            <span class="keyword">if</span>(c==<span class="number">0</span>&amp;&amp;f==<span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;0 0\n&quot;</span>);</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;=n;i++)</span><br><span class="line">                <span class="keyword">for</span>(<span class="type">int</span> j=<span class="number">1</span>;j&lt;=m;j++)</span><br><span class="line">                &#123;</span><br><span class="line">                    gd[i][j]=<span class="built_in">getchar</span>();</span><br><span class="line">                    <span class="keyword">while</span>(gd[i][j]==<span class="string">&#x27; &#x27;</span>||gd[i][j]==<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">                        gd[i][j]=<span class="built_in">getchar</span>();</span><br><span class="line">                &#125;</span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> i=n;i&gt;=<span class="number">1</span>;i--)</span><br><span class="line">                <span class="keyword">for</span>(<span class="type">int</span> j=m;j&gt;=<span class="number">1</span>;j--)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">if</span>(i==n)</span><br><span class="line">                        dw[i][j]=(gd[i][j]==<span class="string">&#x27;0&#x27;</span>)?<span class="number">1</span>:<span class="number">0</span>;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                        dw[i][j]=(gd[i][j]==<span class="string">&#x27;1&#x27;</span>)?<span class="number">0</span>:(dw[i+<span class="number">1</span>][j]+<span class="number">1</span>);</span><br><span class="line">                    <span class="keyword">if</span>(j==m)</span><br><span class="line">                        rt[i][j]=(gd[i][j]==<span class="string">&#x27;0&#x27;</span>)?<span class="number">1</span>:<span class="number">0</span>;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                        rt[i][j]=(gd[i][j]==<span class="string">&#x27;1&#x27;</span>)?<span class="number">0</span>:(rt[i][j+<span class="number">1</span>]+<span class="number">1</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            ascc=asff=<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> i=n<span class="number">-2</span>;i&gt;=<span class="number">1</span>;i--)</span><br><span class="line">                <span class="keyword">for</span>(<span class="type">int</span> j=<span class="number">1</span>;j&lt;=m<span class="number">-1</span>;j++)</span><br><span class="line">                &#123;</span><br><span class="line">                    ansc[i][j]=ansf[i][j]=<span class="number">0</span>;</span><br><span class="line">                    <span class="keyword">if</span>(i==n<span class="number">-2</span>) nxt[i][j]=<span class="number">0</span>;</span><br><span class="line">                    <span class="keyword">else</span> nxt[i][j]=nxt[i+<span class="number">1</span>][j];</span><br><span class="line">                    <span class="keyword">if</span>(rt[i][j]&lt;<span class="number">2</span>||dw[i][j]&lt;<span class="number">3</span>)</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">if</span>(dw[i][j]==<span class="number">0</span>) nxt[i][j]=<span class="number">0</span>;</span><br><span class="line">                        <span class="keyword">continue</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span>(!nxt[i][j])</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">for</span>(<span class="type">int</span> k=i+<span class="number">2</span>;k&lt;=n;k++)</span><br><span class="line">                        &#123;</span><br><span class="line">                            <span class="keyword">if</span>(gd[k][j]==<span class="string">&#x27;1&#x27;</span>) <span class="keyword">break</span>;</span><br><span class="line">                            ansc[i][j]=(ansc[i][j]+(rt[i][j]<span class="number">-1</span>)*(rt[k][j]<span class="number">-1</span>)%mod)%mod;</span><br><span class="line">                            ansf[i][j]=(ansf[i][j]+(rt[i][j]<span class="number">-1</span>)*(rt[k][j]<span class="number">-1</span>)%mod*(dw[k][j]<span class="number">-1</span>)%mod)%mod;</span><br><span class="line">                        &#125;</span><br><span class="line">                        nxt[i][j]=i;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="type">int</span> k=nxt[i][j];</span><br><span class="line">                        ansc[i][j]=(ansc[k][j]*inv[rt[k][j]<span class="number">-1</span>]%mod+(k-i&gt;<span class="number">1</span>)*(rt[k][j]<span class="number">-1</span>)%mod)*(rt[i][j]<span class="number">-1</span>)%mod;</span><br><span class="line">                        ansf[i][j]=(ansf[k][j]*inv[rt[k][j]<span class="number">-1</span>]%mod+(k-i&gt;<span class="number">1</span>)*(rt[k][j]<span class="number">-1</span>)*(dw[k][j]<span class="number">-1</span>)%mod)*(rt[i][j]<span class="number">-1</span>)%mod;</span><br><span class="line">                        nxt[i][j]=i;</span><br><span class="line">                    &#125;</span><br><span class="line">                    ascc=(ascc+ansc[i][j]%mod)%mod;</span><br><span class="line">                    asff=(asff+ansf[i][j]%mod)%mod;</span><br><span class="line">                    ansc[i][j]=(ansc[i][j]+(rt[i][j]<span class="number">-1</span>)*(rt[i+<span class="number">1</span>][j]<span class="number">-1</span>)%mod)%mod;</span><br><span class="line">                    ansf[i][j]=(ansf[i][j]+(rt[i][j]<span class="number">-1</span>)*(rt[i+<span class="number">1</span>][j]<span class="number">-1</span>)%mod*(dw[i+<span class="number">1</span>][j]<span class="number">-1</span>)%mod)%mod;</span><br><span class="line">                &#125;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;%lld %lld\n&quot;</span>,c*ascc,f*asff);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">//  freopen(&quot;plant.in&quot;,&quot;r&quot;,stdin);</span></span><br><span class="line">  <span class="comment">//  freopen(&quot;plant.out&quot;,&quot;w&quot;,stdout);</span></span><br><span class="line">    <span class="keyword">return</span> Kochi::<span class="built_in">Ayatsuki</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//it&#x27;s the only one chance</span></span><br><span class="line"><span class="comment">//now it&#x27;s your turn,stickman!</span></span><br></pre></td></tr></table></figure></p>
+<p>如果要更简洁的解法，可以试试枚举左下角，复杂度相同但可能更快。这个交给你们自己实现。</p>
+<p><a href="https://stickmancheng.gitee.io">Stickman的小窝</a> <a
+href="https://www.luogu.com.cn/user/553176">省一爷爷coding_hong</a></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>一首小诗</title>
+    <url>/2022/10/02/%E4%B8%80%E9%A6%96%E5%B0%8F%E8%AF%97/</url>
+    <content><![CDATA[<h1 id="驱逐">驱逐</h1>
+<span id="more"></span>
+<p>暗影驱逐了日光， 黑云驱逐了晴空， 烈风驱逐了枯黄， 雨滴驱逐了残红。
+叶落花折，蔽日隐天。</p>
+<p>哀痛驱逐了愉悦， 悲伤驱逐了欢畅， 迷茫驱逐了哀痛， 空虚驱逐了悲伤。
+此心已空，何处得安？ 九月十五日 雨中</p>
+<p>利刃驱逐了鲜血， 寒冰驱逐了余温。 虫蚁驱逐了肉体， 执念驱逐了灵魂。
+与汝同去，雪山之巅。 九月十六日 阴霾</p>
+<p>温暖驱逐了寒冰， 柔情驱逐了利刃。 明月驱逐了暗影， 晴空驱逐了黑云。
+尚与此世，藕断丝连。 九月十九日 晴</p>
+<p>骄阳驱逐了烈风， 晴虹驱逐了暴雨。 明智驱逐了执念， 理性驱逐了空虚。
+愿承汝志，立地顶天。 九月二十日 晴</p>
+<p>时间驱逐了忧思， 距离驱逐了回忆。 繁花驱逐了荒原， 野草驱逐了田地。
+此心已安，请莫挂念。 九月二十三日 晴</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>一些闲话</title>
+    <url>/2022/12/22/%E4%B8%80%E4%BA%9B%E9%97%B2%E8%AF%9D/</url>
+    <content><![CDATA[<h1 id="一些闲话">一些闲话</h1>
+<span id="more"></span>
+<p>关于我在NOIP考场上死抠T1这件事。</p>
+<p><span
+class="math inline">\(O(n^3)\)</span>的暴力还是比较好写的。稍加思索，过了样例<del>怎么又是114（恼</del>，然后自己造一组大样例测测。但是在本地严重超时。<span
+class="math inline">\(5\times1000\times1000\times1000\)</span>，能过<del>才怪</del>。</p>
+<p>显然我没想到，如果我把后面两个暴力分拿到手，那我就赢了。（预计T3和T4码量巨大）</p>
+<p><del>死抠T1，我要稳稳的AC</del></p>
+<p><span
+class="math inline">\(O(n^2)\)</span>的正解也比较容易推。小修小补一下，测下样例，也过了。然后我试着对拍——Kopi!!!
+出锅了<del>要是我把这锅交上去，我就输麻了</del>，但我坚信我的递推优化一定是对的！不然也就不会有这篇题解了</p>
+<p>浅看一下，暴力分15+8，<del>如果我抠正解说不定更划算</del>，一度被搞崩心态，最后观察到出锅的输入总是比正常要小，查出遗漏的情况，然后拍了1500组，没问题。我摆了。</p>
+<p>最可气的是，赛后测，洛谷爆4，InfOJ爆1。<del>寄没力</del>然后我还不敢重测，据说当天晚上重测数据就好了（我怕被卡常作死用getchar）出成绩，<a
+href="https://www.luogu.com.cn/user/553176">隔壁紫荆花大佬</a>的<span
+class="math inline">\(O(n^3logn)\)</span>被放过去了！~~我**谢谢你CCF~~然后他卡线省一赢麻了，我差8分</p>
+<p>不说了，挥手</p>
+]]></content>
+  </entry>
+</search>
