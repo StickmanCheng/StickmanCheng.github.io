@@ -1,30 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>一些闲话</title>
-    <url>/2022/12/22/%E4%B8%80%E4%BA%9B%E9%97%B2%E8%AF%9D/</url>
-    <content><![CDATA[<h1 id="一些闲话">一些闲话</h1>
-<span id="more"></span>
-<p>关于我在NOIP考场上死抠T1这件事。</p>
-<p><span
-class="math inline">\(O(n^3)\)</span>的暴力还是比较好写的。稍加思索，过了样例<del>怎么又是114（恼</del>，然后自己造一组大样例测测。但是在本地严重超时。<span
-class="math inline">\(5\times1000\times1000\times1000\)</span>，能过<del>才怪</del>。</p>
-<p>显然我没想到，如果我把后面两个暴力分拿到手，那我就赢了。（预计T3和T4码量巨大）</p>
-<p><del>死抠T1，我要稳稳的AC</del></p>
-<p><span
-class="math inline">\(O(n^2)\)</span>的正解也比较容易推。小修小补一下，测下样例，也过了。然后我试着对拍——Kopi!!!
-出锅了<del>要是我把这锅交上去，我就输麻了</del>，但我坚信我的递推优化一定是对的！不然也就不会有这篇题解了</p>
-<p>浅看一下，暴力分15+8，<del>如果我抠正解说不定更划算</del>，一度被搞崩心态，最后观察到出锅的输入总是比正常要小，查出遗漏的情况，然后拍了1500组，没问题。我摆了。</p>
-<p>最可气的是，赛后测，洛谷爆4，InfOJ爆1。<del>寄没力</del>然后我还不敢重测，据说当天晚上重测数据就好了（我怕被卡常作死用getchar）出成绩，<a
-href="https://www.luogu.com.cn/user/553176">隔壁紫荆花大佬</a>的<span
-class="math inline">\(O(n^3logn)\)</span>被放过去了！<del>我TM谢谢你CCF</del>然后他卡线省一赢麻了，我差8分</p>
-<p>不说了，挥手</p>
-]]></content>
-      <categories>
-        <category>闲话</category>
-      </categories>
-  </entry>
-  <entry>
     <title>NOIP2022 T1 种花 题解</title>
     <url>/2022/12/10/NOIP2022%20T1%20%E7%A7%8D%E8%8A%B1%20%E9%A2%98%E8%A7%A3/</url>
     <content><![CDATA[<h1 id="题面解释">题面解释</h1>
@@ -143,6 +119,30 @@ href="https://www.luogu.com.cn/user/553176">省一爷爷coding_hong</a></p>
 ]]></content>
       <categories>
         <category>小作文</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>一些闲话</title>
+    <url>/2022/12/22/%E4%B8%80%E4%BA%9B%E9%97%B2%E8%AF%9D/</url>
+    <content><![CDATA[<h1 id="一些闲话">一些闲话</h1>
+<span id="more"></span>
+<p>关于我在NOIP考场上死抠T1这件事。</p>
+<p><span
+class="math inline">\(O(n^3)\)</span>的暴力还是比较好写的。稍加思索，过了样例<del>怎么又是114（恼</del>，然后自己造一组大样例测测。但是在本地严重超时。<span
+class="math inline">\(5\times1000\times1000\times1000\)</span>，能过<del>才怪</del>。</p>
+<p>显然我没想到，如果我把后面两个暴力分拿到手，那我就赢了。（预计T3和T4码量巨大）</p>
+<p><del>死抠T1，我要稳稳的AC</del></p>
+<p><span
+class="math inline">\(O(n^2)\)</span>的正解也比较容易推。小修小补一下，测下样例，也过了。然后我试着对拍——Kopi!!!
+出锅了<del>要是我把这锅交上去，我就输麻了</del>，但我坚信我的递推优化一定是对的！不然也就不会有这篇题解了</p>
+<p>浅看一下，暴力分15+8，<del>如果我抠正解说不定更划算</del>，一度被搞崩心态，最后观察到出锅的输入总是比正常要小，查出遗漏的情况，然后拍了1500组，没问题。我摆了。</p>
+<p>最可气的是，赛后测，洛谷爆4，InfOJ爆1。<del>寄没力</del>然后我还不敢重测，据说当天晚上重测数据就好了（我怕被卡常作死用getchar）出成绩，<a
+href="https://www.luogu.com.cn/user/553176">隔壁紫荆花大佬</a>的<span
+class="math inline">\(O(n^3logn)\)</span>被放过去了！<del>我TM谢谢你CCF</del>然后他卡线省一赢麻了，我差8分</p>
+<p>不说了，挥手</p>
+]]></content>
+      <categories>
+        <category>闲话</category>
       </categories>
   </entry>
   <entry>
