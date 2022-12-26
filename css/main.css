@@ -225,7 +225,7 @@ body {
   box-sizing: border-box;
   color: var(--text-color);
   opacity: 0.9;
-  font-family: TsangerJinKai05 W03, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: Noto Serif SC, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-size: 1em;
   line-height: 2;
   min-height: 100%;
@@ -244,7 +244,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: TsangerJinKai05 W03, TsangerJinKai05 W03, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: Noto Serif SC, Noto Serif SC, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-weight: bold;
   line-height: 1.5;
   margin: 30px 0 15px;
@@ -1069,7 +1069,7 @@ pre code {
   color: var(--brand-hover-color);
 }
 .site-title {
-  font-family: TsangerJinKai05 W03, TsangerJinKai05 W03, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: Noto Serif SC, Noto Serif SC, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-size: 1.375em;
   font-weight: normal;
   line-height: 1.5;
@@ -1774,7 +1774,7 @@ pre code {
   width: 4px;
 }
 .post-body {
-  font-family: TsangerJinKai05 W03, TsangerJinKai05 W03, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: Noto Serif SC, Noto Serif SC, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   overflow-wrap: break-word;
 }
 @media (min-width: 1200px) {
@@ -1961,7 +1961,7 @@ pre code {
 }
 .posts-expand .post-meta-container {
   color: #999;
-  font-family: TsangerJinKai05 W03, TsangerJinKai05 W03, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: Noto Serif SC, Noto Serif SC, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-size: 0.75em;
   margin-top: 3px;
 }
@@ -2826,23 +2826,4 @@ mjx-container[display='true'] + br {
   .comments {
     padding: 10px 12px;
   }
-}
-@font-face {
-  font-family: TsangerJinKai05 W03;
-  font-style: normal;
-  src: url("../fonts/TsangerJinKai.ttf");
-}
-@font-face {
-  font-family: Source Code Pro;
-  font-style: normal;
-  src: url("../fonts/SourceCodePro.ttf");
-}
-head {
-  font-family: TsangerJinKai05 W03;
-}
-body {
-  font-family: TsangerJinKai05 W03;
-}
-code {
-  font-family: Source Code Pro;
 }
