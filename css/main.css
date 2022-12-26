@@ -1181,6 +1181,7 @@ pre code {
   border-bottom: 0;
   position: fixed;
   top: -10px;
+  left: 20px;
   transition: top 0.3s;
   right: 30px;
 }
@@ -1591,11 +1592,15 @@ pre code {
 }
 .back-to-top {
   font-size: 12px;
+  position: absolute;
+  left: 20px;
+  bottom: 10px;
   align-items: center;
   bottom: -100px;
   color: #fff;
   display: flex;
   height: 26px;
+  width: 26px;
   transition: bottom 0.2s ease-in-out;
   background: #222;
   cursor: pointer;
