@@ -218,12 +218,16 @@ body {
   height: 100%;
 }
 body {
-  background: var(--body-bg-color);
+  background: url("/images/background.jpeg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
   box-sizing: border-box;
   color: var(--text-color);
   font-family: Noto Serif SC, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-size: 1em;
   line-height: 2;
+  opacity: 0.9;
   min-height: 100%;
   position: relative;
   transition: padding 0.2s ease-in-out;
@@ -1171,6 +1175,7 @@ pre code {
   border-bottom: 0;
   position: fixed;
   top: -10px;
+  left: 20px;
   transition: top 0.3s;
   right: 30px;
 }
