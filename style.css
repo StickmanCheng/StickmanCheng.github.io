@@ -24,6 +24,7 @@ body {
     align-items: center;
     text-align: center;
     z-index: 102; /* Highest z-index */
+    cursor: default; /* ADDED: Show default pointer */
 }
 
 #start-screen h1 {
@@ -58,7 +59,7 @@ body {
     height: 100vh;
     background-color: #ffffff;
     overflow: hidden;
-    cursor: none; /* Add this line to hide the mouse cursor */
+    cursor: none; /* Add this line to hide the mouse cursor during gameplay */
 }
 
 #player {
@@ -125,6 +126,7 @@ body {
     align-items: center;
     text-align: center;
     z-index: 100;
+    cursor: default; /* ADDED: Show default pointer */
 }
 
 /* Reward Screen Styles (already present) */
@@ -142,6 +144,7 @@ body {
     align-items: center;
     text-align: center;
     z-index: 101; /* Higher z-index than game-over to be on top */
+    cursor: default; /* ADDED: Show default pointer */
 }
 
 #reward-screen button {

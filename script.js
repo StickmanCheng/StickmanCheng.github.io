@@ -6,8 +6,8 @@ const rewardScreen = document.getElementById('reward-screen');
 const rewardHealthBtn = document.getElementById('reward-health-btn');
 const rewardFirerateBtn = document.getElementById('reward-firerate-btn');
 
-const startScreen = document.getElementById('start-screen'); // NEW
-const startGameBtn = document.getElementById('start-game-btn'); // NEW
+const startScreen = document.getElementById('start-screen');
+const startGameBtn = document.getElementById('start-game-btn');
 
 let playerHealth = 20;
 let playerMaxHealth = 20; // Track max health
@@ -43,11 +43,16 @@ let currentFireRate = 100; // Cooldown for the current attack mode (0.1s for mod
 // Kill counters for reward system
 let blackCircleKills = 0;
 let redSquareKills = 0;
-const BLACK_CIRCLE_REWARD_THRESHOLD = 20;
-const RED_SQUARE_REWARD_THRESHOLD = 5;
+// NEW: Make reward thresholds dynamic
+let currentBlackCircleRewardThreshold = 20; 
+let currentRedSquareRewardThreshold = 5; 
 const BLACK_TO_RED_RATIO = 4; // 4 black circles = 1 red square equivalent
 
-let gamePaused = true; // CHANGED: Game starts paused
+// NEW: Reward limits
+let rewardsGiven = 0;
+const MAX_REWARDS = 10; 
+
+let gamePaused = true; // Game starts paused
 
 function updatePlayerPosition() {
     if (gamePaused) return;
@@ -109,14 +114,17 @@ document.addEventListener('keydown', (event) => {
         if (event.key === '1') {
             currentAttackMode = 1;
             currentFireRate = 100; // 0.1 seconds
+            lastShotTime = performance.now(); // FIX: Reset cooldown when mode is switched
             console.log("Attack Mode: 1 (Single Shot)");
         } else if (event.key === '2') {
             currentAttackMode = 2;
             currentFireRate = 300; // 0.3 seconds
+            lastShotTime = performance.now(); // FIX: Reset cooldown when mode is switched
             console.log("Attack Mode: 2 (Three-shot)");
         } else if (event.key === '3') {
             currentAttackMode = 3;
             currentFireRate = 1000; // 1 second
+            lastShotTime = performance.now(); // FIX: Reset cooldown when mode is switched
             console.log("Attack Mode: 3 (Ten-shot)");
         }
     }
@@ -236,7 +244,7 @@ function _createSingleBullet(directionX, directionY) {
     bullet.classList.add('bullet');
 
     // Bullet starts at the center of the player
-    // IMPORTANT: This calculation already ensures the bullet's center aligns with the player's center.
+    // This calculation ensures the bullet's center aligns with the player's center.
     // playerX and playerY are the top-left of the player element.
     // Adding half of player's width/height gets the player's center.
     // Subtracting half of bullet's width/height offsets the bullet's top-left
@@ -341,9 +349,15 @@ function decreaseEnemySpawnInterval() {
 
 // Reward System Functions
 function checkForReward() {
+    // NEW: Only check for reward if max rewards haven't been reached
+    if (rewardsGiven >= MAX_REWARDS) {
+        return;
+    }
+
     const totalEquivalentKills = blackCircleKills + (redSquareKills * BLACK_TO_RED_RATIO);
 
-    if (blackCircleKills >= BLACK_CIRCLE_REWARD_THRESHOLD || redSquareKills >= RED_SQUARE_REWARD_THRESHOLD || totalEquivalentKills >= BLACK_CIRCLE_REWARD_THRESHOLD) {
+    // NEW: Use dynamic thresholds
+    if (blackCircleKills >= currentBlackCircleRewardThreshold || redSquareKills >= currentRedSquareRewardThreshold || totalEquivalentKills >= currentBlackCircleRewardThreshold) {
         showRewardScreen();
     }
 }
@@ -363,6 +377,22 @@ function hideRewardScreen() {
     blackCircleKills = 0;
     redSquareKills = 0;
     
+    // NEW: Increment reward count
+    rewardsGiven++;
+    console.log(`Reward #${rewardsGiven} given.`);
+
+    // NEW: If max rewards not reached, increase next reward's kill requirements
+    if (rewardsGiven < MAX_REWARDS) {
+        currentBlackCircleRewardThreshold = Math.ceil(currentBlackCircleRewardThreshold * 1.25);
+        currentRedSquareRewardThreshold = Math.ceil(currentRedSquareRewardThreshold * 1.25);
+        console.log(`Next reward thresholds: Black: ${currentBlackCircleRewardThreshold}, Red: ${currentRedSquareRewardThreshold}`);
+    } else {
+        console.log("Max rewards reached. No more reward opportunities.");
+        // Optionally, set thresholds to a very high number to prevent further checks
+        currentBlackCircleRewardThreshold = Infinity;
+        currentRedSquareRewardThreshold = Infinity;
+    }
+
     // Decrease enemy spawn interval after reward
     decreaseEnemySpawnInterval();
 }
@@ -398,23 +428,29 @@ function endGame() {
     
     // Remove all game-related event listeners or disable them properly
     gameContainer.removeEventListener('mousemove', handleMouseMove);
-    gameContainer.removeEventListener('mousedown', (event) => { /* dummy function to remove */ });
-    gameContainer.removeEventListener('mouseup', (event) => { /* dummy function to remove */ });
-    document.removeEventListener('keydown', (event) => { /* dummy function to remove */ });
-    document.removeEventListener('keyup', (event) => { /* dummy function to remove */ });
+    // Note: It's better to add/remove actual named functions for event listeners
+    // For simplicity in this example, we keep them as is, but in a larger game
+    // you'd typically store function references to remove properly.
+    gameContainer.removeEventListener('mousedown', () => {}); 
+    gameContainer.removeEventListener('mouseup', () => {}); 
+    document.removeEventListener('keydown', () => {});
+    document.removeEventListener('keyup', () => {});
     rewardHealthBtn.removeEventListener('click', applyHealthReward);
     rewardFirerateBtn.removeEventListener('click', applyFireRateReward);
-    startGameBtn.removeEventListener('click', initializeGame); // NEW: Remove start button listener
+    startGameBtn.removeEventListener('click', initializeGame); // Remove start button listener
 
     // Hide reward screen if game over occurs during a reward
     rewardScreen.classList.add('hidden'); 
 }
 
-// NEW: Function to initialize the game after start button is clicked
+// Function to initialize the game after start button is clicked
 function initializeGame() {
     startScreen.classList.add('hidden'); // Hide start screen
     gameContainer.classList.remove('hidden'); // Show game container
 
+    // Reset player position to center
+    playerX = window.innerWidth / 2;
+    playerY = window.innerHeight / 2;
     player.style.left = `${playerX}px`;
     player.style.top = `${playerY}px`;
     healthDisplay.textContent = playerHealth;
@@ -423,6 +459,7 @@ function initializeGame() {
 
     // Start game loop and enemy generation
     gameLoop();
+    // Initialize enemy generation interval here
     enemyGenerationInterval = setInterval(createEnemy, currentEnemySpawnInterval);
 }
 
@@ -455,8 +492,8 @@ function gameLoop() {
     }
 }
 
-// NEW: Attach event listener to start game button
+// Attach event listener to start game button
 startGameBtn.addEventListener('click', initializeGame);
 
-// Initial setup before game starts (player position, health display already handled by initializeGame)
-// The game loop and enemy generation are now called by initializeGame
+// Initial setup: Player position and health display are set in initializeGame().
+// Game loop and enemy generation only start AFTER the start button is clicked.
