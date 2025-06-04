@@ -36,19 +36,20 @@ let currentEnemySpawnInterval = 1000; // Initial 1 second
 let isMouseDown = false;
 let lastShotTime = 0;
 
-// Attack mode variables
+// NEW: Base fire rate and current mode's fire rate
+let baseFireRate = 100; // This is the cooldown for mode 1, and the base for others
 let currentAttackMode = 1; // 1: single, 2: three-shot, 3: ten-shot
-let currentFireRate = 100; // Cooldown for the current attack mode (0.1s for mode 1 initially)
+let currentFireRate = baseFireRate; // Initial default for mode 1 (matches baseFireRate)
+
 
 // Kill counters for reward system
 let blackCircleKills = 0;
 let redSquareKills = 0;
-// NEW: Make reward thresholds dynamic
 let currentBlackCircleRewardThreshold = 20; 
 let currentRedSquareRewardThreshold = 5; 
 const BLACK_TO_RED_RATIO = 4; // 4 black circles = 1 red square equivalent
 
-// NEW: Reward limits
+// Reward limits
 let rewardsGiven = 0;
 const MAX_REWARDS = 10; 
 
@@ -113,19 +114,19 @@ document.addEventListener('keydown', (event) => {
     if (!gamePaused) {
         if (event.key === '1') {
             currentAttackMode = 1;
-            currentFireRate = 100; // 0.1 seconds
-            lastShotTime = performance.now(); // FIX: Reset cooldown when mode is switched
-            console.log("Attack Mode: 1 (Single Shot)");
+            currentFireRate = baseFireRate; // UPDATED: Calculate based on baseFireRate
+            lastShotTime = performance.now(); // Reset cooldown when mode is switched
+            console.log("Attack Mode: 1 (Single Shot), Cooldown:", currentFireRate);
         } else if (event.key === '2') {
             currentAttackMode = 2;
-            currentFireRate = 300; // 0.3 seconds
-            lastShotTime = performance.now(); // FIX: Reset cooldown when mode is switched
-            console.log("Attack Mode: 2 (Three-shot)");
+            currentFireRate = baseFireRate * 3; // UPDATED: Calculate based on baseFireRate
+            lastShotTime = performance.now(); // Reset cooldown when mode is switched
+            console.log("Attack Mode: 2 (Three-shot), Cooldown:", currentFireRate);
         } else if (event.key === '3') {
             currentAttackMode = 3;
-            currentFireRate = 1000; // 1 second
-            lastShotTime = performance.now(); // FIX: Reset cooldown when mode is switched
-            console.log("Attack Mode: 3 (Ten-shot)");
+            currentFireRate = baseFireRate * 10; // UPDATED: Calculate based on baseFireRate
+            lastShotTime = performance.now(); // Reset cooldown when mode is switched
+            console.log("Attack Mode: 3 (Ten-shot), Cooldown:", currentFireRate);
         }
     }
 });
@@ -244,11 +245,6 @@ function _createSingleBullet(directionX, directionY) {
     bullet.classList.add('bullet');
 
     // Bullet starts at the center of the player
-    // This calculation ensures the bullet's center aligns with the player's center.
-    // playerX and playerY are the top-left of the player element.
-    // Adding half of player's width/height gets the player's center.
-    // Subtracting half of bullet's width/height offsets the bullet's top-left
-    // so that its center is at the player's center.
     const playerCenterX = playerX + player.offsetWidth / 2;
     const playerCenterY = playerY + player.offsetHeight / 2;
 
@@ -349,14 +345,14 @@ function decreaseEnemySpawnInterval() {
 
 // Reward System Functions
 function checkForReward() {
-    // NEW: Only check for reward if max rewards haven't been reached
+    // Only check for reward if max rewards haven't been reached
     if (rewardsGiven >= MAX_REWARDS) {
         return;
     }
 
     const totalEquivalentKills = blackCircleKills + (redSquareKills * BLACK_TO_RED_RATIO);
 
-    // NEW: Use dynamic thresholds
+    // Use dynamic thresholds
     if (blackCircleKills >= currentBlackCircleRewardThreshold || redSquareKills >= currentRedSquareRewardThreshold || totalEquivalentKills >= currentBlackCircleRewardThreshold) {
         showRewardScreen();
     }
@@ -377,11 +373,11 @@ function hideRewardScreen() {
     blackCircleKills = 0;
     redSquareKills = 0;
     
-    // NEW: Increment reward count
+    // Increment reward count
     rewardsGiven++;
     console.log(`Reward #${rewardsGiven} given.`);
 
-    // NEW: If max rewards not reached, increase next reward's kill requirements
+    // If max rewards not reached, increase next reward's kill requirements
     if (rewardsGiven < MAX_REWARDS) {
         currentBlackCircleRewardThreshold = Math.ceil(currentBlackCircleRewardThreshold * 1.25);
         currentRedSquareRewardThreshold = Math.ceil(currentRedSquareRewardThreshold * 1.25);
@@ -405,7 +401,21 @@ function applyHealthReward() {
 }
 
 function applyFireRateReward() {
-    currentFireRate = Math.max(20, currentFireRate * 0.75); // Reduce fire rate by 25%, with a minimum of 20ms
+    // UPDATED: Reduce the base fire rate
+    baseFireRate = Math.max(20, baseFireRate * 0.75); // Ensure a minimum base fire rate of 20ms
+    console.log(`Base Fire Rate reduced to: ${baseFireRate}ms`);
+
+    // UPDATED: Update current mode's fire rate immediately based on the new baseFireRate
+    // This ensures the active mode's cooldown is updated instantly and maintains ratio.
+    if (currentAttackMode === 1) {
+        currentFireRate = baseFireRate;
+    } else if (currentAttackMode === 2) {
+        currentFireRate = baseFireRate * 3;
+    } else if (currentAttackMode === 3) {
+        currentFireRate = baseFireRate * 10;
+    }
+    console.log(`Current Mode's Cooldown updated to: ${currentFireRate}ms`);
+
     hideRewardScreen();
 }
 
@@ -428,9 +438,6 @@ function endGame() {
     
     // Remove all game-related event listeners or disable them properly
     gameContainer.removeEventListener('mousemove', handleMouseMove);
-    // Note: It's better to add/remove actual named functions for event listeners
-    // For simplicity in this example, we keep them as is, but in a larger game
-    // you'd typically store function references to remove properly.
     gameContainer.removeEventListener('mousedown', () => {}); 
     gameContainer.removeEventListener('mouseup', () => {}); 
     document.removeEventListener('keydown', () => {});
