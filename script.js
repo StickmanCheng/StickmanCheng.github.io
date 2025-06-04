@@ -6,6 +6,9 @@ const rewardScreen = document.getElementById('reward-screen');
 const rewardHealthBtn = document.getElementById('reward-health-btn');
 const rewardFirerateBtn = document.getElementById('reward-firerate-btn');
 
+const startScreen = document.getElementById('start-screen'); // NEW
+const startGameBtn = document.getElementById('start-game-btn'); // NEW
+
 let playerHealth = 20;
 let playerMaxHealth = 20; // Track max health
 let playerX = window.innerWidth / 2;
@@ -26,7 +29,6 @@ let lastMovedDirection = { x: 0, y: 1 }; // Default to backward if no movement d
 
 let keysPressed = {};
 let gameInterval;
-// NEW: Make enemyGenerationInterval dynamic
 let enemyGenerationInterval; 
 let currentEnemySpawnInterval = 1000; // Initial 1 second
 
@@ -45,7 +47,7 @@ const BLACK_CIRCLE_REWARD_THRESHOLD = 20;
 const RED_SQUARE_REWARD_THRESHOLD = 5;
 const BLACK_TO_RED_RATIO = 4; // 4 black circles = 1 red square equivalent
 
-let gamePaused = false; // Flag to pause/resume game
+let gamePaused = true; // CHANGED: Game starts paused
 
 function updatePlayerPosition() {
     if (gamePaused) return;
@@ -176,7 +178,7 @@ function createEnemy() {
             initialX = -50; // Off-screen
             initialY = Math.random() * window.innerHeight;
             break;
-        case 3: // Right
+            case 3: // Right
             initialX = window.innerWidth + 50; // Off-screen
             initialY = Math.random() * window.innerHeight;
             break;
@@ -234,7 +236,11 @@ function _createSingleBullet(directionX, directionY) {
     bullet.classList.add('bullet');
 
     // Bullet starts at the center of the player
-    // This calculation ensures the bullet's center aligns with the player's center.
+    // IMPORTANT: This calculation already ensures the bullet's center aligns with the player's center.
+    // playerX and playerY are the top-left of the player element.
+    // Adding half of player's width/height gets the player's center.
+    // Subtracting half of bullet's width/height offsets the bullet's top-left
+    // so that its center is at the player's center.
     const playerCenterX = playerX + player.offsetWidth / 2;
     const playerCenterY = playerY + player.offsetHeight / 2;
 
@@ -319,7 +325,7 @@ function moveBullets() {
     });
 }
 
-// NEW: Function to decrease enemy spawn interval
+// Function to decrease enemy spawn interval
 function decreaseEnemySpawnInterval() {
     // Clear the old interval first
     clearInterval(enemyGenerationInterval);
@@ -357,7 +363,7 @@ function hideRewardScreen() {
     blackCircleKills = 0;
     redSquareKills = 0;
     
-    // NEW: Decrease enemy spawn interval after reward
+    // Decrease enemy spawn interval after reward
     decreaseEnemySpawnInterval();
 }
 
@@ -390,21 +396,34 @@ function endGame() {
     cancelAnimationFrame(gameInterval);
     gameOverScreen.classList.remove('hidden');
     
-    // Remove all game-related event listeners
+    // Remove all game-related event listeners or disable them properly
     gameContainer.removeEventListener('mousemove', handleMouseMove);
-    gameContainer.removeEventListener('mousedown', (event) => { if (event.button === 0) { isMouseDown = true; } });
-    gameContainer.removeEventListener('mouseup', (event) => { if (event.button === 0) { isMouseDown = false; } });
-    document.removeEventListener('keydown', (event) => {
-        keysPressed[event.key] = true;
-    });
-    document.removeEventListener('keyup', (event) => {
-        keysPressed[event.key] = false;
-    });
+    gameContainer.removeEventListener('mousedown', (event) => { /* dummy function to remove */ });
+    gameContainer.removeEventListener('mouseup', (event) => { /* dummy function to remove */ });
+    document.removeEventListener('keydown', (event) => { /* dummy function to remove */ });
+    document.removeEventListener('keyup', (event) => { /* dummy function to remove */ });
     rewardHealthBtn.removeEventListener('click', applyHealthReward);
     rewardFirerateBtn.removeEventListener('click', applyFireRateReward);
+    startGameBtn.removeEventListener('click', initializeGame); // NEW: Remove start button listener
 
     // Hide reward screen if game over occurs during a reward
     rewardScreen.classList.add('hidden'); 
+}
+
+// NEW: Function to initialize the game after start button is clicked
+function initializeGame() {
+    startScreen.classList.add('hidden'); // Hide start screen
+    gameContainer.classList.remove('hidden'); // Show game container
+
+    player.style.left = `${playerX}px`;
+    player.style.top = `${playerY}px`;
+    healthDisplay.textContent = playerHealth;
+    
+    gamePaused = false; // Unpause the game
+
+    // Start game loop and enemy generation
+    gameLoop();
+    enemyGenerationInterval = setInterval(createEnemy, currentEnemySpawnInterval);
 }
 
 function gameLoop() {
@@ -426,7 +445,7 @@ function gameLoop() {
         
         // Handle continuous firing based on current mode's fire rate
         if (isMouseDown && (performance.now() - lastShotTime > currentFireRate)) {
-            fireBulletsInCurrentMode(); // Call the new function
+            fireBulletsInCurrentMode();
             lastShotTime = performance.now();
         }
     }
@@ -436,13 +455,8 @@ function gameLoop() {
     }
 }
 
-// Initial setup
-player.style.left = `${playerX}px`;
-player.style.top = `${playerY}px`;
-healthDisplay.textContent = playerHealth;
+// NEW: Attach event listener to start game button
+startGameBtn.addEventListener('click', initializeGame);
 
-// Start game loop
-gameLoop();
-
-// Start enemy generation with the current interval
-enemyGenerationInterval = setInterval(createEnemy, currentEnemySpawnInterval);
+// Initial setup before game starts (player position, health display already handled by initializeGame)
+// The game loop and enemy generation are now called by initializeGame
