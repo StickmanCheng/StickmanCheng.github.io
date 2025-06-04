@@ -9,7 +9,6 @@ body {
     font-family: Arial, sans-serif;
 }
 
-/* NEW: Start Screen Styles */
 #start-screen {
     position: absolute;
     top: 0;
@@ -24,7 +23,7 @@ body {
     align-items: center;
     text-align: center;
     z-index: 102; /* Highest z-index */
-    cursor: default; /* ADDED: Show default pointer */
+    cursor: default; /* Show default pointer */
 }
 
 #start-screen h1 {
@@ -103,6 +102,20 @@ body {
     z-index: 20;
 }
 
+/* NEW: Score Display Styles */
+#score-display {
+    position: absolute;
+    top: 10px;
+    right: 10px; /* Position it on the right */
+    font-size: 24px;
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 20;
+}
+
+
 .bullet {
     position: absolute;
     width: 10px; /* Size of the bullet */
@@ -126,10 +139,21 @@ body {
     align-items: center;
     text-align: center;
     z-index: 100;
-    cursor: default; /* ADDED: Show default pointer */
+    cursor: default; /* Show default pointer */
 }
 
-/* Reward Screen Styles (already present) */
+/* NEW: Final Score on Game Over Screen */
+#game-over-screen p {
+    font-size: 1.5em;
+    margin: 10px 0;
+}
+#game-over-screen p span {
+    font-weight: bold;
+    color: #61dafb; /* Highlight final score */
+}
+
+
+/* Reward Screen Styles */
 #reward-screen {
     position: absolute;
     top: 0;
@@ -144,7 +168,7 @@ body {
     align-items: center;
     text-align: center;
     z-index: 101; /* Higher z-index than game-over to be on top */
-    cursor: default; /* ADDED: Show default pointer */
+    cursor: default; /* Show default pointer */
 }
 
 #reward-screen button {
