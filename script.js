@@ -53,7 +53,7 @@ let gamePaused = true;
 let score = 0;
 const SCORE_BASED_SPAWN_INCREASE_INTERVAL = 20;
 let nextScoreIncreaseMilestone = SCORE_BASED_SPAWN_INCREASE_INTERVAL;
-
+const MAX_SCORE = 2500:
 
 function updatePlayerPosition() {
     if (gamePaused) return;
@@ -354,7 +354,8 @@ function decreaseEnemySpawnInterval() {
 }
 
 function checkScoreBasedSpawnIncrease() {
-    if (score >= nextScoreIncreaseMilestone) {
+    if (score >= nextScoreIncreaseMilestone && score <= MAX_SCORE) {
+        // Decrease enemy spawn interval based on score milestones
         decreaseEnemySpawnInterval();
         nextScoreIncreaseMilestone += SCORE_BASED_SPAWN_INCREASE_INTERVAL;
         console.log(`Score-based enemy spawn interval decrease triggered! Current Score: ${score}, Next milestone: ${nextScoreIncreaseMilestone}`);
