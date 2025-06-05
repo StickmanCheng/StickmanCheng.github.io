@@ -15,15 +15,16 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #282c34; /* Dark background */
+    background-color: #282c34;
     color: white;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    z-index: 102; /* Highest z-index */
-    cursor: default; /* Show default pointer */
+    z-index: 105;
+    /* Highest z-index for start screen */
+    cursor: default;
 }
 
 #start-screen h1 {
@@ -41,7 +42,7 @@ body {
     font-size: 1.5em;
     cursor: pointer;
     margin-top: 30px;
-    background-color: #61dafb; /* Light blue */
+    background-color: #61dafb;
     color: #282c34;
     border: none;
     border-radius: 8px;
@@ -58,21 +59,22 @@ body {
     height: 100vh;
     background-color: #ffffff;
     overflow: hidden;
-    cursor: none; /* Add this line to hide the mouse cursor during gameplay */
 }
 
 #player {
     position: absolute;
-    width: 80px; /* Adjust player size as needed */
-    height: 80px; /* Adjust player size as needed */
-    transform: translate(-50%, -50%); /* Keeps player centered on playerX, playerY */
+    width: 80px;
+    height: 80px;
+    transform: translate(-50%, -50%);
     z-index: 10;
+    pointer-events: none;
+    user-select: none;
 }
 
 .enemy {
     position: absolute;
-    border-radius: 50%; /* Default for circles */
-    background-color: black; /* Default for black circles */
+    border-radius: 50%;
+    background-color: black;
     z-index: 5;
 }
 
@@ -87,7 +89,7 @@ body {
     width: 30px;
     height: 30px;
     background-color: red;
-    border-radius: 0; /* Make it a square */
+    border-radius: 0;
 }
 
 #health-display {
@@ -102,11 +104,10 @@ body {
     z-index: 20;
 }
 
-/* NEW: Score Display Styles */
 #score-display {
     position: absolute;
     top: 10px;
-    right: 10px; /* Position it on the right */
+    right: 10px;
     font-size: 24px;
     color: #333;
     background-color: rgba(255, 255, 255, 0.7);
@@ -115,15 +116,46 @@ body {
     z-index: 20;
 }
 
-
 .bullet {
     position: absolute;
-    width: 10px; /* Size of the bullet */
+    width: 10px;
     height: 10px;
-    background-color: blue; /* Color of the bullet */
-    border-radius: 50%; /* Make it round */
-    z-index: 15; /* Ensure bullets appear above enemies */
+    background-color: blue;
+    border-radius: 50%;
+    z-index: 15;
 }
+
+/* NEW: Pause Screen Styles */
+#pause-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    /* Semi-transparent black */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 102;
+    /* Below reward, game over, start, but above game content */
+    cursor: default;
+    /* Show default pointer */
+    font-size: 2em;
+}
+
+#pause-screen h1 {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+#pause-screen p {
+    font-size: 0.8em;
+}
+
 
 #game-over-screen {
     position: absolute;
@@ -138,22 +170,22 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
-    z-index: 100;
-    cursor: default; /* Show default pointer */
+    z-index: 104;
+    /* High z-index for game over */
+    cursor: default;
 }
 
-/* NEW: Final Score on Game Over Screen */
 #game-over-screen p {
     font-size: 1.5em;
     margin: 10px 0;
 }
+
 #game-over-screen p span {
     font-weight: bold;
-    color: #61dafb; /* Highlight final score */
+    color: #61dafb;
 }
 
 
-/* Reward Screen Styles */
 #reward-screen {
     position: absolute;
     top: 0;
@@ -167,8 +199,9 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
-    z-index: 101; /* Higher z-index than game-over to be on top */
-    cursor: default; /* Show default pointer */
+    z-index: 103;
+    /* Higher z-index than pause, lower than game over */
+    cursor: default;
 }
 
 #reward-screen button {
@@ -176,7 +209,7 @@ body {
     font-size: 20px;
     cursor: pointer;
     margin: 10px;
-    background-color: #007bff; /* Blue */
+    background-color: #007bff;
     color: white;
     border: none;
     border-radius: 8px;
