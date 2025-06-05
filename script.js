@@ -354,7 +354,7 @@ function decreaseEnemySpawnInterval() {
 }
 
 function checkScoreBasedSpawnIncrease() {
-    if (rewardsGiven >= MAX_REWARDS && score >= nextScoreIncreaseMilestone) {
+    if (score >= nextScoreIncreaseMilestone) {
         decreaseEnemySpawnInterval();
         nextScoreIncreaseMilestone += SCORE_BASED_SPAWN_INCREASE_INTERVAL;
         console.log(`Score-based enemy spawn interval decrease triggered! Current Score: ${score}, Next milestone: ${nextScoreIncreaseMilestone}`);
@@ -395,8 +395,6 @@ function hideRewardScreen() {
         console.log("Max rewards reached. No more reward opportunities.");
         currentRewardGoal = Infinity;
     }
-
-    decreaseEnemySpawnInterval();
 }
 
 function applyHealthReward() {
