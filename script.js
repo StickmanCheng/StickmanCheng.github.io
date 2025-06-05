@@ -6,6 +6,9 @@ const rewardScreen = document.getElementById('reward-screen');
 const rewardHealthBtn = document.getElementById('reward-health-btn');
 const rewardFirerateBtn = document.getElementById('reward-firerate-btn');
 const resumeGameBtn = document.getElementById('resume-game-btn');
+const tutorialBtn = document.getElementById('tutorial-btn');
+const tutorialScreen = document.getElementById('tutorial-screen');
+const closeTutorialBtn = document.getElementById('close-tutorial-btn');
 
 const startScreen = document.getElementById('start-screen');
 const startGameBtn = document.getElementById('start-game-btn');
@@ -503,6 +506,20 @@ function applyFireRateReward() {
 rewardHealthBtn.addEventListener('click', applyHealthReward);
 rewardFirerateBtn.addEventListener('click', applyFireRateReward);
 resumeGameBtn.addEventListener('click', resumeGame);
+tutorialBtn.addEventListener('click', tutorial);
+closeTutorialBtn.addEventListener('click', closeTutorial);
+
+function tutorial(){
+    tutorialScreen.classList.remove('hidden');
+    pauseScreen.classList.add('hidden'); // Hide pause screen if it was visible
+    startScreen.classList.add('hidden'); // Hide start screen if it was visible
+    rewardScreen.classList.add('hidden'); // Hide reward screen if it was visible
+    gameOverScreen.classList.add('hidden'); // Hide game over screen if it was visible
+}
+function closeTutorial(){
+    tutorialScreen.classList.add('hidden');
+    pauseScreen.classList.remove('hidden'); // Ensure pause screen is hidden when closing tutorial
+}
 
 function resumeGame(){
     gamePaused = false;
