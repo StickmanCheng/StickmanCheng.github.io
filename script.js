@@ -5,6 +5,7 @@ const gameOverScreen = document.getElementById('game-over-screen');
 const rewardScreen = document.getElementById('reward-screen');
 const rewardHealthBtn = document.getElementById('reward-health-btn');
 const rewardFirerateBtn = document.getElementById('reward-firerate-btn');
+const resumeGameBtn = document.getElementById('resume-game-btn');
 
 const startScreen = document.getElementById('start-screen');
 const startGameBtn = document.getElementById('start-game-btn');
@@ -19,8 +20,11 @@ let playerMaxHealth = 20;
 let playerX = window.innerWidth / 2;
 let playerY = window.innerHeight / 2;
 const playerSpeed = 5;
-const enemySpeed = 2;
+const circleSpeed = 2;
+const squareSpeed = 0.5;
 const bulletSpeed = 10;
+const enemyBulletSpeed = 15;
+const enemyFireRate = 1000;
 
 let playerCurrentRotation = 0;
 const playerRotationSpeed = 3;
@@ -51,9 +55,10 @@ const MAX_REWARDS = 10;
 let gamePaused = true;
 
 let score = 0;
-const SCORE_BASED_SPAWN_INCREASE_INTERVAL = 20;
+const SCORE_BASED_SPAWN_INCREASE_INTERVAL = 110;
 let nextScoreIncreaseMilestone = SCORE_BASED_SPAWN_INCREASE_INTERVAL;
-const MAX_SCORE = 2500;
+const MAX_SPAWN_INCREASE = 10;
+let spawnIncreaseCount = 0;
 
 function updatePlayerPosition() {
     if (gamePaused) return;
@@ -147,9 +152,6 @@ document.addEventListener('keydown', (event) => {
 
         }
     }
-    if (gamePaused) {
-        if (keysPressed['r'] || keysPressed['R']) location.reload(); // Reload the game if 'R' is pressed while paused
-    }
 });
 
 document.addEventListener('keyup', (event) => {
@@ -233,8 +235,8 @@ function moveEnemies() {
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance > 1) {
-            enemy.style.left = `${parseFloat(enemy.style.left) + (dx / distance) * enemySpeed}px`;
-            enemy.style.top = `${parseFloat(enemy.style.top) + (dy / distance) * enemySpeed}px`;
+            enemy.style.left = `${parseFloat(enemy.style.left) + (dx / distance) * (enemy.dataset.type === 'circle' ? circleSpeed : squareSpeed)}px`;
+            enemy.style.top = `${parseFloat(enemy.style.top) + (dy / distance) * (enemy.dataset.type === 'circle' ? circleSpeed : squareSpeed)}px`;
         }
 
         if (checkCollision(playerRect, enemyRect)) {
@@ -253,7 +255,14 @@ function moveEnemies() {
             checkForReward();
             checkScoreBasedSpawnIncrease();
         }
-
+        if (enemy.dataset.type === "square") {
+            // If the enemy is a square, it will fire bullets at the player
+            if (Math.random() < 0.01) { // 1% chance to fire each frame
+                if (distance > 1) {
+                    _createEnemyBullet(dx / distance, dy / distance, enemy);
+                }
+            }
+        }
         if (enemyRect.top > window.innerHeight + 100 || enemyRect.bottom < -100 ||
             enemyRect.left > window.innerWidth + 100 || enemyRect.right < -100) {
             enemy.remove();
@@ -274,6 +283,21 @@ function _createSingleBullet(directionX, directionY) {
 
     bullet.velX = directionX * bulletSpeed;
     bullet.velY = directionY * bulletSpeed;
+}
+
+function _createEnemyBullet(directionX, directionY, enemy) {
+    const bullet = document.createElement('div');
+    bullet.classList.add('enemyBullet');
+
+    const enemyCenterX = parseFloat(enemy.style.left) + (enemy.offsetWidth / 2);
+    const enemyCenterY = parseFloat(enemy.style.top) + (enemy.offsetHeight / 2);
+
+    bullet.style.left = `${enemyCenterX - 5}px`;
+    bullet.style.top = `${enemyCenterY - 5}px`;
+    gameContainer.appendChild(bullet);
+
+    bullet.velX = directionX * enemyBulletSpeed;
+    bullet.velY = directionY * enemyBulletSpeed;
 }
 
 function fireBulletsInCurrentMode() {
@@ -307,6 +331,7 @@ function fireBulletsInCurrentMode() {
         }
     }
 }
+
 
 function moveBullets() {
     if (gamePaused) return;
@@ -342,21 +367,73 @@ function moveBullets() {
             bullet.remove();
         }
     });
+    const enemyBullets = document.querySelectorAll('.enemyBullet');
+    enemyBullets.forEach(bullet => {
+        bullet.style.left = `${parseFloat(bullet.style.left) + bullet.velX}px`;
+        bullet.style.top = `${parseFloat(bullet.style.top) + bullet.velY}px`;
+
+        let bulletRect = bullet.getBoundingClientRect();
+        let playerRect = player.getBoundingClientRect();
+
+        if (checkCollision(bulletRect, playerRect)) {
+            playerHealth -= 1; // Assuming enemy bullets do 1 damage
+            healthDisplay.textContent = playerHealth;
+            bullet.remove();
+            if (playerHealth <= 0) {
+                endGame();
+            }
+            return;
+        }
+        const enemies = document.querySelectorAll('.enemy');
+        enemies.forEach(enemy => {
+            let enemyRect = enemy.getBoundingClientRect();
+            if (checkCollision(bulletRect, enemyRect) && enemy.dataset.type === 'circle') {
+                bullet.remove();
+                enemy.remove();
+                return;
+            }
+        });
+        const bullets = document.querySelectorAll('.bullet');
+        bullets.forEach(bulletE => {
+            let bulletERect = bulletE.getBoundingClientRect();
+            if (checkCollision(bulletRect, bulletERect)) {
+                score += 1;
+                scoreDisplay.textContent = score;
+                bullet.remove();
+                bulletE.remove();
+                checkForReward();
+                checkScoreBasedSpawnIncrease();
+                return;
+            }
+        });
+        if (bulletRect.top < -50 || bulletRect.bottom > window.innerHeight + 50 ||
+            bulletRect.left < -50 || bulletRect.right > window.innerWidth + 50) {
+            bullet.remove();
+        }
+    });
 }
 
 function decreaseEnemySpawnInterval() {
     clearInterval(enemyGenerationInterval);
 
-    currentEnemySpawnInterval = Math.max(100, currentEnemySpawnInterval * 0.8);
+    currentEnemySpawnInterval = currentEnemySpawnInterval * 0.8;
     console.log(`Enemy spawn interval decreased to: ${currentEnemySpawnInterval}ms`);
 
     enemyGenerationInterval = setInterval(createEnemy, currentEnemySpawnInterval);
 }
 
 function checkScoreBasedSpawnIncrease() {
-    if (score >= nextScoreIncreaseMilestone && score <= MAX_SCORE) {
+    if (score >= nextScoreIncreaseMilestone) {
         // Decrease enemy spawn interval based on score milestones
-        decreaseEnemySpawnInterval();
+        if (spawnIncreaseCount < MAX_SPAWN_INCREASE) {
+            spawnIncreaseCount++;
+            decreaseEnemySpawnInterval();
+        } else {
+            if (playerHealth < playerMaxHealth) {
+                playerHealth += 1; // Heal 1 health point for each score milestone after max spawn increase
+                healthDisplay.textContent = playerHealth;
+            }
+        }
         nextScoreIncreaseMilestone += SCORE_BASED_SPAWN_INCREASE_INTERVAL;
         console.log(`Score-based enemy spawn interval decrease triggered! Current Score: ${score}, Next milestone: ${nextScoreIncreaseMilestone}`);
     }
@@ -379,6 +456,7 @@ function showRewardScreen() {
     rewardScreen.classList.remove('hidden');
     document.querySelectorAll('.enemy').forEach(e => e.remove());
     document.querySelectorAll('.bullet').forEach(b => b.remove());
+    document.querySelectorAll('.enemyBullet').forEach(b => b.remove());
     gameContainer.style.cursor = 'default'; // Show cursor when reward screen is active
 }
 
@@ -424,7 +502,12 @@ function applyFireRateReward() {
 
 rewardHealthBtn.addEventListener('click', applyHealthReward);
 rewardFirerateBtn.addEventListener('click', applyFireRateReward);
+resumeGameBtn.addEventListener('click', resumeGame);
 
+function resumeGame(){
+    gamePaused = false;
+    pauseScreen.classList.add('hidden'); // Hide pause screen when resuming
+}
 
 function checkCollision(rect1, rect2) {
     return rect1.left < rect2.right &&

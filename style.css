@@ -1,7 +1,7 @@
 body {
     margin: 0;
     overflow: hidden;
-    background-image: url(./qwq.png);
+    background-color: #f0f0f0;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -15,7 +15,10 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #282c34;
+    background-image: url(./qwq.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
     color: white;
     display: flex;
     flex-direction: column;
@@ -25,6 +28,15 @@ body {
     z-index: 105;
     /* Highest z-index for start screen */
     cursor: default;
+}
+
+#title-container {
+    position: center;
+    background-color: plum;
+    background-size: 120%;
+    color: purple;
+    z-index: 106;
+    /* Above start screen */
 }
 
 #start-screen h1 {
@@ -57,7 +69,7 @@ body {
     position: relative;
     width: 100vw;
     height: 100vh;
-    background-color: #ffffff;
+    background-color: #2f2f2f;
     overflow: hidden;
 }
 
@@ -81,7 +93,7 @@ body {
 .black-circle {
     width: 20px;
     height: 20px;
-    background-color: black;
+    background-color: white;
     border-radius: 50%;
 }
 
@@ -125,6 +137,15 @@ body {
     z-index: 15;
 }
 
+.enemyBullet {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: yellowgreen;
+    border-radius: 50%;
+    z-index: 15;
+}
+
 /* NEW: Pause Screen Styles */
 #pause-screen {
     position: absolute;
@@ -154,6 +175,18 @@ body {
 
 #pause-screen p {
     font-size: 0.8em;
+}
+
+#pause-screen button {
+    padding: 15px 30px;
+    font-size: 20px;
+    cursor: pointer;
+    margin: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
 }
 
 

@@ -4,15 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>火柴人的生存游戏</title>
+    <title>求生飞碟</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div id="start-screen">
-        <h1>欢迎来到火柴人的生存游戏！</h1>
-        <p>鼠标移动，按住左键向后方发射子弹。</p>
-        <p>按1，2，3切换攻击方式</p>
+        <div id="title-container">
+            <h1>欢迎来到求生飞碟</h1>
+            <p>鼠标移动，按住左键向后方发射子弹。</p>
+            <p>按ESC键暂停游戏</p>
+            <p>按1，2，3键切换攻击模式</p>
+            <p>1为后方单发，2为后方三发，3为全方向十发</p>
+            <p>白色敌人移动速度2，碰撞伤害1，击杀得分1</p>
+            <p>红色敌人移动速度0.5，子弹速度15，碰撞伤害10，击杀得分4</p>
+            <p>分数达到1100分前，刷怪速率随分数提升，达到一定分数目标可选择奖励</p>
+            <p>分数超过1100分，每多得110分，可回血1点</p>
+        </div>
         <button id="start-game-btn">开始游戏！</button>
     </div>
 
@@ -23,7 +31,9 @@
 
         <div id="pause-screen" class="hidden">
             <h1>游戏暂停</h1>
-            <p>按ESC键恢复，按R键重开</p>
+            <button id="resume-game-btn">继续游戏</button>
+            <button onclick="window.close()">退出游戏</button>
+            <button onclick="location.reload()">重新开始</button>
         </div>
 
         <div id="game-over-screen" class="hidden">
