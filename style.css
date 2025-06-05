@@ -116,6 +116,42 @@ body {
     z-index: 20;
 }
 
+#level-display {
+    position: absolute;
+    top: 10px;
+    left: 170px;
+    font-size: 24px;
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 20;
+}
+
+#mode-display {
+    position: absolute;
+    top: 10px;
+    left: 340px;
+    font-size: 24px;
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 20;
+}
+
+#qwq-display {
+    position: absolute;
+    top: 10px;
+    right: 170px;
+    font-size: 24px;
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 20;
+}
+
 #score-display {
     position: absolute;
     top: 10px;

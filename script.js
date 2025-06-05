@@ -14,6 +14,9 @@ const startScreen = document.getElementById('start-screen');
 const startGameBtn = document.getElementById('start-game-btn');
 
 const scoreDisplay = document.getElementById('current-score');
+const levelDisplay = document.getElementById('current-level');
+const modeDisplay = document.getElementById('current-mode');
+const qwqDisplay = document.getElementById('current-qwq');
 const finalScoreDisplay = document.getElementById('final-score');
 
 const pauseScreen = document.getElementById('pause-screen'); // NEW: Get pause screen element
@@ -129,16 +132,19 @@ document.addEventListener('keydown', (event) => {
         if (event.key === '1') {
             currentAttackMode = 1;
             currentFireRate = baseFireRate;
+            modeDisplay.textContent = '单发模式';
             lastShotTime = performance.now();
             console.log("Attack Mode: 1 (Single Shot), Cooldown:", currentFireRate);
         } else if (event.key === '2') {
             currentAttackMode = 2;
             currentFireRate = baseFireRate * 3;
+            modeDisplay.textContent = '三连发模式';
             lastShotTime = performance.now();
             console.log("Attack Mode: 2 (Three-shot), Cooldown:", currentFireRate);
         } else if (event.key === '3') {
             currentAttackMode = 3;
             currentFireRate = baseFireRate * 10;
+            modeDisplay.textContent = '十连发模式';
             lastShotTime = performance.now();
             console.log("Attack Mode: 3 (Ten-shot), Cooldown:", currentFireRate);
         }
@@ -436,6 +442,7 @@ function checkScoreBasedSpawnIncrease() {
                 playerHealth += 1; // Heal 1 health point for each score milestone after max spawn increase
                 healthDisplay.textContent = playerHealth;
             }
+            qwqDisplay.textContent = `${nextScoreIncreaseMilestone+SCORE_BASED_SPAWN_INCREASE_INTERVAL}`;
         }
         nextScoreIncreaseMilestone += SCORE_BASED_SPAWN_INCREASE_INTERVAL;
         console.log(`Score-based enemy spawn interval decrease triggered! Current Score: ${score}, Next milestone: ${nextScoreIncreaseMilestone}`);
@@ -469,13 +476,16 @@ function hideRewardScreen() {
 
     rewardsGiven++;
     console.log(`Reward #${rewardsGiven} given.`);
+    levelDisplay.textContent = `${rewardsGiven}`;
 
     if (rewardsGiven < MAX_REWARDS) {
         currentRewardGoal += 20 * (rewardsGiven + 1); // Double the reward goal for the next reward
         console.log(`Next Reward Goal: ${currentRewardGoal}`);
+        qwqDisplay.textContent = `${currentRewardGoal}`;
     } else {
         console.log("Max rewards reached. No more reward opportunities.");
         currentRewardGoal = Infinity;
+        qwqDisplay.textContent = `${nextScoreIncreaseMilestone}`;
     }
 }
 
