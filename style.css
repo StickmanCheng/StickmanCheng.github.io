@@ -7,6 +7,10 @@ body {
     align-items: center;
     height: 100vh;
     font-family: Arial, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 #start-screen {
@@ -26,17 +30,33 @@ body {
     align-items: center;
     text-align: center;
     z-index: 105;
-    /* Highest z-index for start screen */
     cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 #title-container {
-    position: center;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: fit-content;
+    max-width: 90%;
     background-color: plum;
-    background-size: 120%;
+    border-radius: 15px;
+    padding: 20px 30px;
     color: purple;
     z-index: 106;
-    /* Above start screen */
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 #start-screen h1 {
@@ -59,6 +79,10 @@ body {
     border: none;
     border-radius: 8px;
     transition: background-color 0.3s ease;
+    user-select: auto;
+    -webkit-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
 }
 
 #start-screen button:hover {
@@ -71,6 +95,10 @@ body {
     height: 100vh;
     background-color: #2f2f2f;
     overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 #player {
@@ -81,6 +109,9 @@ body {
     z-index: 10;
     pointer-events: none;
     user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .enemy {
@@ -88,6 +119,10 @@ body {
     border-radius: 50%;
     background-color: black;
     z-index: 5;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .black-circle {
@@ -104,64 +139,38 @@ body {
     border-radius: 0;
 }
 
-#health-display {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: 24px;
-    color: #333;
-    background-color: rgba(255, 255, 255, 0.7);
-    padding: 5px 10px;
-    border-radius: 5px;
-    z-index: 20;
+#top-info-container {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    width: 100%;
+    padding-top: 10px;
 }
 
-#level-display {
-    position: absolute;
-    top: 10px;
-    left: 170px;
-    font-size: 24px;
-    color: #333;
-    background-color: rgba(255, 255, 255, 0.7);
-    padding: 5px 10px;
-    border-radius: 5px;
-    z-index: 20;
-}
-
-#mode-display {
-    position: absolute;
-    top: 10px;
-    left: 340px;
-    font-size: 24px;
-    color: #333;
-    background-color: rgba(255, 255, 255, 0.7);
-    padding: 5px 10px;
-    border-radius: 5px;
-    z-index: 20;
-}
-
-#qwq-display {
-    position: absolute;
-    top: 10px;
-    right: 170px;
-    font-size: 24px;
-    color: #333;
-    background-color: rgba(255, 255, 255, 0.7);
-    padding: 5px 10px;
-    border-radius: 5px;
-    z-index: 20;
-}
-
+#health-display,
+#level-display,
+#mode-display,
+#qwq-display,
 #score-display {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+    position: static;
+    top: auto;
+    left: auto;
+    right: auto;
     font-size: 24px;
     color: #333;
     background-color: rgba(255, 255, 255, 0.7);
     padding: 5px 10px;
     border-radius: 5px;
     z-index: 20;
+    white-space: nowrap;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .bullet {
@@ -171,6 +180,10 @@ body {
     background-color: blue;
     border-radius: 50%;
     z-index: 15;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .enemyBullet {
@@ -180,168 +193,180 @@ body {
     background-color: yellowgreen;
     border-radius: 50%;
     z-index: 15;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
-/* NEW: Pause Screen Styles */
 #pause-screen {
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 102;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    /* Semi-transparent black */
     color: white;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    z-index: 102;
-    /* Below reward, game over, start, but above game content */
     cursor: default;
-    /* Show default pointer */
-    font-size: 2em;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 #tutorial-screen {
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 102;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    /* Semi-transparent black */
     color: white;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    z-index: 102;
-    /* Below reward, game over, start, but above game content */
     cursor: default;
-    /* Show default pointer */
-    font-size: 2em;
-}
-
-#pause-screen h1 {
-    font-size: 1.5em;
-    margin-bottom: 20px;
-}
-
-#pause-screen p {
-    font-size: 0.8em;
-}
-
-#pause-screen button {
-    padding: 15px 30px;
-    font-size: 20px;
-    cursor: pointer;
-    margin: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    transition: background-color 0.3s ease;
-}
-
-#tutorial-screen h1 {
-    font-size: 1.5em;
-    margin-bottom: 20px;
-}
-
-#tutorial-screen p {
-    font-size: 0.8em;
-}
-
-#tutorial-screen button {
-    padding: 15px 30px;
-    font-size: 20px;
-    cursor: pointer;
-    margin: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    transition: background-color 0.3s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 #game-over-screen {
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 104;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
     color: white;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    z-index: 104;
-    /* High z-index for game over */
     cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
-
-#game-over-screen p {
-    font-size: 1.5em;
-    margin: 10px 0;
-}
-
-#game-over-screen p span {
-    font-weight: bold;
-    color: #61dafb;
-}
-
 
 #reward-screen {
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 103;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
     color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.content-box {
+    background-color: plum;
+    border-radius: 15px;
+    padding: 20px 30px;
+    color: purple;
+    width: fit-content;
+    max-width: 90%;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    z-index: 103;
-    /* Higher z-index than pause, lower than game over */
-    cursor: default;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
-#reward-screen button {
+.content-box h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+    color: purple;
+}
+
+.content-box p {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: purple;
+}
+
+.content-box button {
     padding: 15px 30px;
-    font-size: 20px;
+    font-size: 1.5em;
     cursor: pointer;
-    margin: 10px;
-    background-color: #007bff;
+    margin-top: 30px;
+    background-color: #61dafb;
+    color: #282c34;
+    border: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    user-select: auto;
+    -webkit-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
+}
+
+.content-box button:hover {
+    background-color: #21a1f1;
+}
+
+#game-over-screen .content-box p span {
+    font-weight: bold;
+    color: #61dafb;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+#game-over-screen .content-box button {
+    padding: 15px 30px;
+    font-size: 1.5em;
+    cursor: pointer;
+    margin-top: 30px;
+    background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 8px;
     transition: background-color 0.3s ease;
+    user-select: auto;
+    -webkit-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
 }
 
-#reward-screen button:hover {
-    background-color: #0056b3;
+#game-over-screen .content-box button:hover {
+    background-color: #45a049;
 }
 
+#pause-screen { z-index: 102; }
+#tutorial-screen { z-index: 102; }
+#game-over-screen { z-index: 104; }
+#reward-screen { z-index: 103; }
 
 .hidden {
     display: none !important;
-}
-
-#game-over-screen button {
-    padding: 10px 20px;
-    font-size: 18px;
-    cursor: pointer;
-    margin-top: 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
 }

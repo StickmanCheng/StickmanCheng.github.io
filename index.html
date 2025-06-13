@@ -23,47 +23,53 @@
 
     <div id="game-container" class="hidden">
         <img id="player" src="NewLogo.png" alt="Player Character">
-        <div id="health-display">生命值：<span id="current-health">20</span></div>
-        <div id="score-display">分数：<span id="current-score">0</span></div>
-        <div id="mode-display">当前攻击模式：<span id="current-mode">单发模式</span></div>
-        <div id="level-display">当前等级：<span id="current-level">0</span></div>
-        <div id="qwq-display">分数目标：<span id="current-qwq">20</span></div>
+        <div id="top-info-container">
+            <div id="health-display">生命值：<span id="current-health">20</span></div>
+            <div id="level-display">当前等级：<span id="current-level">0</span></div>
+            <div id="mode-display">当前攻击模式：<span id="current-mode">单发模式</span></div>
+            <div id="qwq-display">分数目标：<span id="current-qwq">20</span></div>
+            <div id="score-display">分数：<span id="current-score">0</span></div>
+        </div>
 
         <div id="pause-screen" class="hidden">
-            <h1>游戏暂停</h1>
-            <button id="resume-game-btn">继续游戏</button>
-            <button id="tutorial-btn">游戏教程</button>
-            <button onclick="window.close()">退出游戏</button>
-            <button onclick="location.reload()">重新开始</button>
+            <div class="content-box"> <h1>游戏暂停</h1>
+                <button id="resume-game-btn">继续游戏</button>
+                <button id="tutorial-btn">游戏教程</button>
+                <button onclick="window.close()">退出游戏</button>
+                <button onclick="location.reload()">重新开始</button>
+            </div>
         </div>
 
         <div id="game-over-screen" class="hidden">
-            <h1>你寄了</h1>
-            <p>得分：<span id="final-score">0</span></p>
-            <button onclick="location.reload()">再来一局！</button>
+            <div class="content-box"> <h1>你寄了</h1>
+                <p>得分：<span id="final-score">0</span></p>
+                <button onclick="location.reload()">再来一局！</button>
+            </div>
         </div>
 
         <div id="reward-screen" class="hidden">
-            <h2>获得升级！</h2>
-            <p>请选择：</p>
-            <button id="reward-health-btn">生命值上限提升</button>
-            <button id="reward-firerate-btn">攻击冷却降低25%</button>
+            <div class="content-box"> <h2>获得升级！</h2>
+                <p>请选择：</p>
+                <button id="reward-health-btn">生命值上限提升</button>
+                <button id="reward-firerate-btn">攻击冷却降低25%</button>
+            </div>
         </div>
 
         <div id="tutorial-screen" class="hidden">
-            <h1>游戏教程</h1>
-            <p>鼠标移动，按住左键向后方发射子弹。</p>
-            <p>按ESC键暂停游戏</p>
-            <p>按1，2，3键切换攻击模式</p>
-            <p>1为后方单发，2为后方三发，3为全方向十发</p>
-            <p>白色敌人移动速度2，碰撞伤害1，击杀得分1</p>
-            <p>红色敌人移动速度0.5，子弹速度15，碰撞伤害10，击杀得分4</p>
-            <p>分数达到1100分前，刷怪速率随分数提升，达到一定分数目标可选择奖励</p>
-            <p>分数超过1100分，每多得110分，可回血1点</p>
-            <button id="close-tutorial-btn">关闭教程</button>
+            <div class="content-box"> <h1>游戏教程</h1>
+                <p>鼠标移动，按住左键向后方发射子弹。</p>
+                <p>按ESC键暂停游戏</p>
+                <p>按1，2，3键切换攻击模式</p>
+                <p>1为后方单发，2为后方三发，3为全方向十发</p>
+                <p>白色敌人移动速度2，碰撞伤害1，击杀得分1</p>
+                <p>红色敌人移动速度0.5，子弹速度15，碰撞伤害10，击杀得分4</p>
+                <p>分数达到1100分前，刷怪速率随分数提升，达到一定分数目标可选择奖励</p>
+                <p>分数超过1100分，每多得110分，可回血1点</p>
+                <button id="close-tutorial-btn">关闭教程</button>
+            </div>
         </div>
-        
-    </div>
+
+        </div>
 
     <script src="script.js"></script>
 </body>

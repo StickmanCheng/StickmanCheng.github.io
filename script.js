@@ -19,7 +19,7 @@ const modeDisplay = document.getElementById('current-mode');
 const qwqDisplay = document.getElementById('current-qwq');
 const finalScoreDisplay = document.getElementById('final-score');
 
-const pauseScreen = document.getElementById('pause-screen'); // NEW: Get pause screen element
+const pauseScreen = document.getElementById('pause-screen');
 
 let playerHealth = 20;
 let playerMaxHealth = 20;
@@ -59,6 +59,7 @@ let currentRewardGoal = 20;
 const MAX_REWARDS = 10;
 
 let gamePaused = true;
+let isPageFocused = true;
 
 let score = 0;
 const SCORE_BASED_SPAWN_INCREASE_INTERVAL = 110;
@@ -66,45 +67,38 @@ let nextScoreIncreaseMilestone = SCORE_BASED_SPAWN_INCREASE_INTERVAL;
 const MAX_SPAWN_INCREASE = 10;
 let spawnIncreaseCount = 0;
 
+const minSpawnDistance = 300;
+
 function updatePlayerPosition() {
     if (gamePaused) return;
 
-    // Store previous position before calculating new one for direction tracking
     prevPlayerX = playerX;
     prevPlayerY = playerY;
 
     let newPlayerX = playerX;
     let newPlayerY = playerY;
 
-    // 2. Mouse Movement (moves towards targetMouseX/Y)
     const dx = targetMouseX - newPlayerX;
     const dy = targetMouseY - newPlayerY;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    const minDistanceThreshold = 1; // Stop movement when very close to target to prevent jitter
+    const minDistanceThreshold = 1;
 
     if (distance > minDistanceThreshold) {
-        // Calculate movement amount, ensuring it doesn't overshoot the target
         const moveAmount = Math.min(distance, playerSpeed);
-
         newPlayerX += (dx / distance) * moveAmount;
         newPlayerY += (dy / distance) * moveAmount;
     }
 
-    // 3. Keep player within bounds (applies to combined keyboard and mouse movement)
     playerX = Math.max(0, Math.min(window.innerWidth, newPlayerX));
     playerY = Math.max(0, Math.min(window.innerHeight, newPlayerY));
 
-    // Apply rotation (existing)
     playerCurrentRotation = (playerCurrentRotation + playerRotationSpeed) % 360;
     player.style.transform = `translate(-50%, -50%) rotate(${playerCurrentRotation}deg)`;
 
-    // Apply position
     player.style.left = `${playerX}px`;
     player.style.top = `${playerY}px`;
 
-    // Update lastMovedDirection based on the actual change in player's position
-    // This is crucial for backward firing, reflecting actual player movement
     const actualDx = playerX - prevPlayerX;
     const actualDy = playerY - prevPlayerY;
     const actualMagnitude = Math.sqrt(actualDx * actualDx + actualDy * actualDy);
@@ -115,12 +109,8 @@ function updatePlayerPosition() {
     }
 }
 
-// MODIFIED: handleMouseMove now only stores the target position
 function handleMouseMove(event) {
     if (gamePaused) return;
-
-    // Store the target mouse coordinates (adjusted for player center)
-    // Player position is updated in updatePlayerPosition() based on this target
     targetMouseX = event.clientX;
     targetMouseY = event.clientY;
 }
@@ -128,40 +118,36 @@ function handleMouseMove(event) {
 document.addEventListener('keydown', (event) => {
     keysPressed[event.key] = true;
 
-    if (!gamePaused) { // Only allow mode switching if not paused
+    if (!gamePaused) {
         if (event.key === '1') {
             currentAttackMode = 1;
             currentFireRate = baseFireRate;
             modeDisplay.textContent = '单发模式';
             lastShotTime = performance.now();
-            console.log("Attack Mode: 1 (Single Shot), Cooldown:", currentFireRate);
         } else if (event.key === '2') {
             currentAttackMode = 2;
             currentFireRate = baseFireRate * 3;
             modeDisplay.textContent = '三连发模式';
             lastShotTime = performance.now();
-            console.log("Attack Mode: 2 (Three-shot), Cooldown:", currentFireRate);
         } else if (event.key === '3') {
             currentAttackMode = 3;
             currentFireRate = baseFireRate * 10;
             modeDisplay.textContent = '十连发模式';
             lastShotTime = performance.now();
-            console.log("Attack Mode: 3 (Ten-shot), Cooldown:", currentFireRate);
         }
     }
 
-    // NEW: Handle Escape key for pausing
     if (event.key === 'Escape') {
-        // Only toggle pause if no other critical overlay (game over, reward, start) is active
-        if (gameOverScreen.classList.contains('hidden') &&
-            rewardScreen.classList.contains('hidden') &&
-            startScreen.classList.contains('hidden')) {
-            gamePaused = !gamePaused; // Toggle general gamePaused state
-            pauseScreen.classList.toggle('hidden'); // Show/hide pause screen
-
+        if (!tutorialScreen.classList.contains('hidden')) {
+            closeTutorial();
+        } else if (startScreen.classList.contains('hidden') &&
+            gameOverScreen.classList.contains('hidden') &&
+            rewardScreen.classList.contains('hidden')) {
+            togglePause();
         }
     }
 });
+
 
 document.addEventListener('keyup', (event) => {
     keysPressed[event.key] = false;
@@ -181,6 +167,23 @@ gameContainer.addEventListener('mouseup', (event) => {
     }
 });
 
+window.addEventListener('blur', () => {
+    if (!gamePaused && !gameContainer.classList.contains('hidden') &&
+        startScreen.classList.contains('hidden') &&
+        gameOverScreen.classList.contains('hidden') &&
+        rewardScreen.classList.contains('hidden') &&
+        tutorialScreen.classList.contains('hidden')) {
+        isPageFocused = false;
+        gamePaused = true;
+        pauseScreen.classList.remove('hidden');
+        gameContainer.style.cursor = 'default';
+    }
+});
+
+window.addEventListener('focus', () => {
+    isPageFocused = true;
+});
+
 
 function createEnemy() {
     if (gamePaused) return;
@@ -188,40 +191,41 @@ function createEnemy() {
     const enemy = document.createElement('div');
     enemy.classList.add('enemy');
 
-    const type = Math.random() < 0.8 ? 'circle' : 'square';
+    const type = Math.random() < 0.9 ? 'circle' : 'square';
     let damage = 0;
+    let size = 0;
 
     if (type === 'circle') {
         enemy.classList.add('black-circle');
         damage = 1;
+        size = 20;
     } else {
         enemy.classList.add('red-square');
         damage = 10;
+        size = 30;
     }
     enemy.dataset.damage = damage;
     enemy.dataset.type = type;
 
-    const edge = Math.floor(Math.random() * 4);
     let initialX, initialY;
+    let distanceToPlayer;
+    let attempts = 0;
+    const maxAttempts = 50;
 
-    switch (edge) {
-        case 0: // Top
-            initialX = Math.random() * window.innerWidth;
-            initialY = -50;
+    do {
+        initialX = Math.random() * (window.innerWidth - size);
+        initialY = Math.random() * (window.innerHeight - size);
+
+        const enemyCenterX = initialX + size / 2;
+        const enemyCenterY = initialY + size / 2;
+        distanceToPlayer = Math.sqrt(
+            Math.pow(enemyCenterX - playerX, 2) + Math.pow(enemyCenterY - playerY, 2)
+        );
+        attempts++;
+        if (attempts > maxAttempts) {
             break;
-        case 1: // Bottom
-            initialX = Math.random() * window.innerWidth;
-            initialY = window.innerHeight + 50;
-            break;
-        case 2: // Left
-            initialX = -50;
-            initialY = Math.random() * window.innerHeight;
-            break;
-        case 3: // Right
-            initialX = window.innerWidth + 50;
-            initialY = Math.random() * window.innerHeight;
-            break;
-    }
+        }
+    } while (distanceToPlayer < minSpawnDistance);
 
     enemy.style.left = `${initialX}px`;
     enemy.style.top = `${initialY}px`;
@@ -239,8 +243,8 @@ function moveEnemies() {
         let enemyRect = enemy.getBoundingClientRect();
         let playerRect = player.getBoundingClientRect();
 
-        const dx = (playerX) - enemyRect.left + (enemyRect.width / 2);
-        const dy = (playerY) - enemyRect.top + (enemyRect.height / 2);
+        const dx = (playerX) - (parseFloat(enemy.style.left) + enemyRect.width / 2);
+        const dy = (playerY) - (parseFloat(enemy.style.top) + enemyRect.height / 2);
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance > 1) {
@@ -263,10 +267,10 @@ function moveEnemies() {
             scoreDisplay.textContent = score;
             checkForReward();
             checkScoreBasedSpawnIncrease();
+            return;
         }
         if (enemy.dataset.type === "square") {
-            // If the enemy is a square, it will fire bullets at the player
-            if (Math.random() < 0.01) { // 1% chance to fire each frame
+            if (Math.random() < 0.005) {
                 if (distance > 1) {
                     _createEnemyBullet(dx / distance, dy / distance, enemy);
                 }
@@ -385,7 +389,7 @@ function moveBullets() {
         let playerRect = player.getBoundingClientRect();
 
         if (checkCollision(bulletRect, playerRect)) {
-            playerHealth -= 1; // Assuming enemy bullets do 1 damage
+            playerHealth -= 1;
             healthDisplay.textContent = playerHealth;
             bullet.remove();
             if (playerHealth <= 0) {
@@ -426,26 +430,23 @@ function decreaseEnemySpawnInterval() {
     clearInterval(enemyGenerationInterval);
 
     currentEnemySpawnInterval = currentEnemySpawnInterval * 0.8;
-    console.log(`Enemy spawn interval decreased to: ${currentEnemySpawnInterval}ms`);
 
     enemyGenerationInterval = setInterval(createEnemy, currentEnemySpawnInterval);
 }
 
 function checkScoreBasedSpawnIncrease() {
     if (score >= nextScoreIncreaseMilestone) {
-        // Decrease enemy spawn interval based on score milestones
         if (spawnIncreaseCount < MAX_SPAWN_INCREASE) {
             spawnIncreaseCount++;
             decreaseEnemySpawnInterval();
         } else {
             if (playerHealth < playerMaxHealth) {
-                playerHealth += 1; // Heal 1 health point for each score milestone after max spawn increase
+                playerHealth += 1;
                 healthDisplay.textContent = playerHealth;
             }
-            qwqDisplay.textContent = `${nextScoreIncreaseMilestone+SCORE_BASED_SPAWN_INCREASE_INTERVAL}`;
+            qwqDisplay.textContent = `${nextScoreIncreaseMilestone + SCORE_BASED_SPAWN_INCREASE_INTERVAL}`;
         }
         nextScoreIncreaseMilestone += SCORE_BASED_SPAWN_INCREASE_INTERVAL;
-        console.log(`Score-based enemy spawn interval decrease triggered! Current Score: ${score}, Next milestone: ${nextScoreIncreaseMilestone}`);
     }
 }
 
@@ -456,7 +457,6 @@ function checkForReward() {
     }
 
     if (score >= currentRewardGoal) {
-        console.log(`Reward available! Current Score: ${score}, Reward Goal: ${currentRewardGoal}`);
         showRewardScreen();
     }
 }
@@ -467,23 +467,27 @@ function showRewardScreen() {
     document.querySelectorAll('.enemy').forEach(e => e.remove());
     document.querySelectorAll('.bullet').forEach(b => b.remove());
     document.querySelectorAll('.enemyBullet').forEach(b => b.remove());
-    gameContainer.style.cursor = 'default'; // Show cursor when reward screen is active
+    gameContainer.style.cursor = 'default';
 }
 
 function hideRewardScreen() {
     rewardScreen.classList.add('hidden');
-    gamePaused = false;
+    if (!isPageFocused) {
+        gamePaused = true;
+        pauseScreen.classList.remove('hidden');
+        gameContainer.style.cursor = 'default';
+    } else {
+        gamePaused = false;
+        gameContainer.style.cursor = 'default';
+    }
 
     rewardsGiven++;
-    console.log(`Reward #${rewardsGiven} given.`);
     levelDisplay.textContent = `${rewardsGiven}`;
 
     if (rewardsGiven < MAX_REWARDS) {
-        currentRewardGoal += 20 * (rewardsGiven + 1); // Double the reward goal for the next reward
-        console.log(`Next Reward Goal: ${currentRewardGoal}`);
+        currentRewardGoal += 20 * (rewardsGiven + 1);
         qwqDisplay.textContent = `${currentRewardGoal}`;
     } else {
-        console.log("Max rewards reached. No more reward opportunities.");
         currentRewardGoal = Infinity;
         qwqDisplay.textContent = `${nextScoreIncreaseMilestone}`;
     }
@@ -498,7 +502,6 @@ function applyHealthReward() {
 
 function applyFireRateReward() {
     baseFireRate = Math.max(20, baseFireRate * 0.75);
-    console.log(`Base Fire Rate reduced to: ${baseFireRate}ms`);
     playerHealth = playerMaxHealth;
     healthDisplay.textContent = playerHealth;
     if (currentAttackMode === 1) {
@@ -508,7 +511,6 @@ function applyFireRateReward() {
     } else if (currentAttackMode === 3) {
         currentFireRate = baseFireRate * 10;
     }
-    console.log(`Current Mode's Cooldown updated to: ${currentFireRate}ms`);
 
     hideRewardScreen();
 }
@@ -519,21 +521,50 @@ resumeGameBtn.addEventListener('click', resumeGame);
 tutorialBtn.addEventListener('click', tutorial);
 closeTutorialBtn.addEventListener('click', closeTutorial);
 
-function tutorial(){
+
+function tutorial() {
     tutorialScreen.classList.remove('hidden');
-    pauseScreen.classList.add('hidden'); // Hide pause screen if it was visible
-    startScreen.classList.add('hidden'); // Hide start screen if it was visible
-    rewardScreen.classList.add('hidden'); // Hide reward screen if it was visible
-    gameOverScreen.classList.add('hidden'); // Hide game over screen if it was visible
-}
-function closeTutorial(){
-    tutorialScreen.classList.add('hidden');
-    pauseScreen.classList.remove('hidden'); // Ensure pause screen is hidden when closing tutorial
+    startScreen.classList.add('hidden');
+    pauseScreen.classList.add('hidden');
+    rewardScreen.classList.add('hidden');
+    gameOverScreen.classList.add('hidden');
+    gameContainer.style.cursor = 'default';
 }
 
-function resumeGame(){
-    gamePaused = false;
-    pauseScreen.classList.add('hidden'); // Hide pause screen when resuming
+function closeTutorial() {
+    tutorialScreen.classList.add('hidden');
+    if (startScreen.classList.contains('hidden')) {
+        if (gamePaused) {
+            pauseScreen.classList.remove('hidden');
+            gameContainer.style.cursor = 'default';
+        } else {
+            gameContainer.style.cursor = 'default';
+        }
+    } else {
+        startScreen.classList.remove('hidden');
+        gameContainer.style.cursor = 'default';
+    }
+}
+
+
+function togglePause() {
+    gamePaused = !gamePaused;
+    pauseScreen.classList.toggle('hidden');
+
+    if (gamePaused) {
+        gameContainer.style.cursor = 'default';
+    } else {
+        gameContainer.style.cursor = 'default';
+    }
+}
+
+function resumeGame() {
+    if (isPageFocused) {
+        gamePaused = false;
+        pauseScreen.classList.add('hidden');
+        gameContainer.style.cursor = 'default';
+    } else {
+    }
 }
 
 function checkCollision(rect1, rect2) {
@@ -549,20 +580,18 @@ function endGame() {
     gameOverScreen.classList.remove('hidden');
     finalScoreDisplay.textContent = score;
 
-    // Ensure all overlays are hidden and cursor is restored
-    pauseScreen.classList.add('hidden'); // NEW: Hide pause screen on game over
+    pauseScreen.classList.add('hidden');
     rewardScreen.classList.add('hidden');
-    gameContainer.style.cursor = 'default'; // Restore default cursor on game over
+    tutorialScreen.classList.add('hidden');
+    gameContainer.style.cursor = 'default';
+    gamePaused = true;
 
-    // It's good practice to remove event listeners here if not already handled by reload
     gameContainer.removeEventListener('mousemove', handleMouseMove);
-    gameContainer.removeEventListener('mousedown', () => { });
-    gameContainer.removeEventListener('mouseup', () => { });
-    document.removeEventListener('keydown', () => { });
-    document.removeEventListener('keyup', () => { });
     rewardHealthBtn.removeEventListener('click', applyHealthReward);
     rewardFirerateBtn.removeEventListener('click', applyFireRateReward);
-    startGameBtn.removeEventListener('click', initializeGame);
+    resumeGameBtn.removeEventListener('click', resumeGame);
+    tutorialBtn.removeEventListener('click', tutorial);
+    closeTutorialBtn.removeEventListener('click', closeTutorial);
 }
 
 function initializeGame() {
@@ -586,13 +615,30 @@ function initializeGame() {
     currentFireRate = baseFireRate;
     currentEnemySpawnInterval = 1000;
     nextScoreIncreaseMilestone = SCORE_BASED_SPAWN_INCREASE_INTERVAL;
+    spawnIncreaseCount = 0;
+    levelDisplay.textContent = `${rewardsGiven}`;
+    modeDisplay.textContent = '单发模式';
+    qwqDisplay.textContent = `${currentRewardGoal}`;
 
     gamePaused = false;
-    pauseScreen.classList.add('hidden'); // Ensure pause screen is hidden at start
+    isPageFocused = true;
+    pauseScreen.classList.add('hidden');
+    gameOverScreen.classList.add('hidden');
+    rewardScreen.classList.add('hidden');
+    tutorialScreen.classList.add('hidden');
+
+    document.querySelectorAll('.enemy').forEach(e => e.remove());
+    document.querySelectorAll('.bullet').forEach(b => b.remove());
+    document.querySelectorAll('.enemyBullet').forEach(b => b.remove());
+
+    gameContainer.style.cursor = 'default';
 
     gameLoop();
+    if (enemyGenerationInterval) clearInterval(enemyGenerationInterval);
     enemyGenerationInterval = setInterval(createEnemy, currentEnemySpawnInterval);
 }
+
+startGameBtn.addEventListener('click', initializeGame);
 
 function gameLoop() {
     const currentDx = playerX - prevPlayerX;
@@ -619,5 +665,3 @@ function gameLoop() {
         gameInterval = requestAnimationFrame(gameLoop);
     }
 }
-
-startGameBtn.addEventListener('click', initializeGame);
