@@ -69,6 +69,10 @@ let spawnIncreaseCount = 0;
 
 const minSpawnDistance = 300;
 
+const FPS = 100;
+const FRAME_INTERVAL = 1000 / FPS;
+let lastFrameTime = 0;
+
 function updatePlayerPosition() {
     if (gamePaused) return;
 
@@ -255,6 +259,7 @@ function moveEnemies() {
         if (checkCollision(playerRect, enemyRect)) {
             playerHealth -= parseInt(enemy.dataset.damage);
             healthDisplay.textContent = playerHealth;
+            showDeathMessage(enemy);
             enemy.remove();
             if (playerHealth <= 0) {
                 endGame();
@@ -368,6 +373,7 @@ function moveBullets() {
                 scoreDisplay.textContent = score;
 
                 bullet.remove();
+                showDeathMessage(enemy);
                 enemy.remove();
                 checkForReward();
                 checkScoreBasedSpawnIncrease();
@@ -402,6 +408,7 @@ function moveBullets() {
             let enemyRect = enemy.getBoundingClientRect();
             if (checkCollision(bulletRect, enemyRect) && enemy.dataset.type === 'circle') {
                 bullet.remove();
+                showDeathMessage(enemy);
                 enemy.remove();
                 return;
             }
@@ -448,6 +455,50 @@ function checkScoreBasedSpawnIncrease() {
         }
         nextScoreIncreaseMilestone += SCORE_BASED_SPAWN_INCREASE_INTERVAL;
     }
+}
+
+function showDeathMessage(enemy) {
+    const deathMessage = document.createElement('div');
+    deathMessage.classList.add('death-message');
+
+    const messages = [
+        "那一天的忧郁😭忧郁起来~",
+        "我被资本做局了！😫",
+        "资本你赢了！😒",
+        "我！上！早！八！🤬🤬",
+        "现在是6月13号😪😫",
+        "永别了，玉泉路！🥺🥺🥺",
+        "等等等等……等等等等……😪",
+        "现在是连基本生命体征都维持不了了……🥴",
+        "这苦逼的生活……😩",
+        "线代数分热学电磁离散……😰",
+        "真复习不过来了我操！😱",
+        "热带风味冰红茶……🤪",
+        "拼尽全力，无法战胜……😖",
+        "又幻想了……🤤",
+        "资本你把我害死了！😵",
+    ];
+    deathMessage.textContent = messages[Math.floor(Math.random() * messages.length)];
+
+    const enemyRect = enemy.getBoundingClientRect();
+    deathMessage.style.left = `${enemyRect.left + enemyRect.width / 2}px`;
+    deathMessage.style.top = `${enemyRect.top + enemyRect.height / 2}px`;
+
+    gameContainer.appendChild(deathMessage);
+
+    deathMessage.style.opacity = 1;
+    deathMessage.style.transform = 'translate(-50%, -50%)';
+
+    let fadeOutInterval = setInterval(() => {
+        let opacity = parseFloat(deathMessage.style.opacity);
+        if (opacity > 0) {
+            deathMessage.style.opacity = opacity - 0.05;
+            deathMessage.style.transform = `translate(-50%, ${parseFloat(deathMessage.style.transform.split(',')[1]) - 2}px)`;
+        } else {
+            clearInterval(fadeOutInterval);
+            deathMessage.remove();
+        }
+    }, 50);
 }
 
 
@@ -633,6 +684,7 @@ function initializeGame() {
 
     gameContainer.style.cursor = 'default';
 
+    lastFrameTime = performance.now();
     gameLoop();
     if (enemyGenerationInterval) clearInterval(enemyGenerationInterval);
     enemyGenerationInterval = setInterval(createEnemy, currentEnemySpawnInterval);
@@ -640,7 +692,15 @@ function initializeGame() {
 
 startGameBtn.addEventListener('click', initializeGame);
 
-function gameLoop() {
+function gameLoop(currentTime) {
+    gameInterval = requestAnimationFrame(gameLoop);
+
+    if (currentTime < lastFrameTime + FRAME_INTERVAL) {
+        return;
+    }
+
+    lastFrameTime = currentTime;
+
     const currentDx = playerX - prevPlayerX;
     const currentDy = playerY - prevPlayerY;
     const currentMagnitude = Math.sqrt(currentDx * currentDx + currentDy * currentDy);
@@ -661,7 +721,7 @@ function gameLoop() {
         }
     }
 
-    if (playerHealth > 0) {
-        gameInterval = requestAnimationFrame(gameLoop);
+    if (playerHealth <= 0) {
+        cancelAnimationFrame(gameInterval);
     }
 }
